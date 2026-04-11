@@ -1,0 +1,288 @@
+/* ─── Reset & Base ─────────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+
+    :root {
+      --bg-deep: #080f0b;
+      --bg-card: rgba(12, 26, 18, 0.72);
+      --bg-card-alt: rgba(15, 33, 22, 0.60);
+      --border: rgba(74, 222, 128, 0.12);
+      --green-400: #4ade80;
+      --green-500: #22c55e;
+      --teal-400: #2dd4bf;
+      --blue-400: #60a5fa;
+      --text-primary: #e8f5ee;
+      --text-muted: #7aab8a;
+      --text-dim: #395447;
+      --font-main: 'Outfit', sans-serif;
+      --font-mono: 'JetBrains Mono', monospace;
+      --radius-xl: 26px;
+    }
+
+    body {
+      font-family: var(--font-main);
+      background: var(--bg-deep);
+      color: var(--text-primary);
+      min-height: 100vh;
+      overflow-x: hidden;
+      line-height: 1.6;
+    }
+
+    /* ─── Animated Background ──────────────────────────────────── */
+    body::before {
+      content: '';
+      position: fixed;
+      inset: 0;
+      background:
+        radial-gradient(ellipse 80% 60% at 10% 0%, rgba(34, 197, 94, 0.08) 0%, transparent 55%),
+        radial-gradient(ellipse 60% 50% at 90% 100%, rgba(45, 212, 191, 0.06) 0%, transparent 50%),
+        radial-gradient(ellipse 40% 40% at 50% 50%, rgba(16, 163, 74, 0.04) 0%, transparent 60%);
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    /* Floating particles */
+    .particle-field {
+      position: fixed;
+      inset: 0;
+      pointer-events: none;
+      z-index: 0;
+      overflow: hidden;
+    }
+
+    .particle {
+      position: absolute;
+      border-radius: 50%;
+      background: var(--green-500);
+      opacity: 0;
+      animation: floatUp var(--dur, 10s) var(--delay, 0s) infinite ease-in-out;
+    }
+
+    @keyframes floatUp {
+      0% {
+        opacity: 0;
+        transform: translateY(0) scale(1);
+      }
+
+      10% {
+        opacity: 0.18;
+      }
+
+      90% {
+        opacity: 0.06;
+      }
+
+      100% {
+        opacity: 0;
+        transform: translateY(-100vh) scale(0.5);
+      }
+    }
+
+    /* ─── Layout ───────────────────────────────────────────────── */
+    .wrapper {
+      position: relative;
+      z-index: 1;
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 0 24px 60px;
+    }
+
+    /* ─── NAV ──────────────────────────────────────────────────── */
+    nav {
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 18px 24px;
+      background: rgba(8, 15, 11, 0.82);
+      backdrop-filter: blur(18px);
+      border-bottom: 1px solid var(--border);
+      margin: 0 -24px 48px;
+    }
+
+    .nav-brand {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+      text-decoration: none;
+    }
+
+    .nav-logo {
+      width: 36px;
+      height: 36px;
+      background: linear-gradient(135deg, var(--green-500), var(--teal-400));
+      border-radius: 10px;
+      display: grid;
+      place-items: center;
+      font-size: 18px;
+    }
+
+    .nav-title {
+      font-size: 1.25rem;
+      font-weight: 700;
+      background: linear-gradient(90deg, var(--green-400), var(--teal-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      letter-spacing: -0.3px;
+    }
+
+    .nav-links {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      list-style: none;
+    }
+
+    .nav-links a {
+      text-decoration: none;
+      color: var(--text-muted);
+      font-size: 0.88rem;
+      font-weight: 500;
+      padding: 7px 15px;
+      border-radius: 10px;
+      transition: all 0.22s;
+    }
+
+    .nav-links a:hover {
+      color: var(--text-primary);
+      background: rgba(74, 222, 128, 0.08);
+    }
+
+    .nav-links a.active {
+      color: var(--green-400);
+    }
+
+    /* ─── Header ───────────────────────────────────────────────── */
+    .header {
+      text-align: center;
+      padding: 20px 0 50px;
+    }
+
+    .header h1 {
+      font-size: clamp(2.2rem, 5vw, 3.5rem);
+      font-weight: 800;
+      line-height: 1.1;
+      letter-spacing: -1px;
+      margin-bottom: 20px;
+    }
+
+    .header h1 span {
+      background: linear-gradient(135deg, var(--green-400), var(--teal-400));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .header p {
+      font-size: 1.1rem;
+      color: var(--text-muted);
+      max-width: 650px;
+      margin: 0 auto;
+    }
+
+    /* ─── Feature Box ──────────────────────────────────────────── */
+    .feature-box {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 40px;
+      margin-bottom: 30px;
+      backdrop-filter: blur(16px);
+      transition: transform 0.3s ease;
+    }
+
+    .feature-box:hover {
+      transform: translateY(-4px);
+      border-color: rgba(74, 222, 128, 0.3);
+      box-shadow: 0 12px 40px rgba(0, 0, 0, 0.5);
+    }
+
+    .fb-header {
+      display: flex;
+      align-items: center;
+      gap: 16px;
+      margin-bottom: 20px;
+    }
+
+    .fb-icon {
+      font-size: 2.2rem;
+      background: rgba(74, 222, 128, 0.1);
+      width: 64px;
+      height: 64px;
+      display: grid;
+      place-items: center;
+      border-radius: 18px;
+    }
+
+    .fb-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--text-primary);
+    }
+
+    .fb-content p {
+      color: var(--text-muted);
+      margin-bottom: 16px;
+      font-size: 1.05rem;
+    }
+
+    .fb-content p:last-child {
+      margin-bottom: 0;
+    }
+
+    .fb-list {
+      list-style: none;
+      margin-top: 20px;
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+      gap: 15px;
+    }
+
+    .fb-list li {
+      background: rgba(255, 255, 255, 0.03);
+      padding: 14px 18px;
+      border-radius: 14px;
+      font-size: 0.95rem;
+      border: 1px solid rgba(255, 255, 255, 0.05);
+      color: var(--text-primary);
+    }
+
+    .fb-list li span {
+      display: block;
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 4px;
+      font-weight: 500;
+    }
+
+    /* ─── Footer ───────────────────────────────────────────────── */
+    footer {
+      text-align: center;
+      padding: 30px 0 10px;
+      border-top: 1px solid var(--border);
+      font-size: 0.78rem;
+      color: var(--text-dim);
+    }
+
+    footer span {
+      color: var(--green-400);
+    }
+
+    .fade-in {
+      opacity: 0;
+      transform: translateY(20px);
+      transition: opacity 0.55s ease, transform 0.55s ease;
+    }
+
+    .fade-in.visible {
+      opacity: 1;
+      transform: translateY(0);
+    }

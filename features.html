@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PythoSense — Features</title>
+  <meta name="description" content="Discover the hardware and metrics behind PythoSense, the smart plant monitor." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link
+    href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
+    rel="stylesheet" />
+
+  <link rel="stylesheet" href="css/features.css" />
+</head>
+
+<body>
+
+  <!-- Particle field -->
+  <div class="particle-field" id="particleField"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="index.html">
+      <div class="nav-logo">🌿</div>
+      <span class="nav-title">PythoSense</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" id="nav-dashboard">Dashboard</a></li>
+      <li><a href="features.html" class="active" id="nav-features">Features</a></li>
+    </ul>
+  </nav>
+
+  <div class="wrapper">
+    <div class="header fade-in">
+      <h1>Know exactly what your<br /><span>plant is feeling</span></h1>
+      <p>PythoSense reads soil temperature, humidity, and ambient light intensity from your plant using DHT11/DHT22 and
+        LDR sensors — in real-time.</p>
+    </div>
+
+    <div class="feature-box fade-in">
+      <div class="fb-header">
+        <div class="fb-icon">⚙️</div>
+        <div class="fb-title">DHT11 / DHT22 Sensors</div>
+      </div>
+      <div class="fb-content">
+        <p>The core of PythoSense relies on precision digital temperature and humidity sensors. The DHT series provides
+          highly reliable, calibrated digital signal output.</p>
+        <ul class="fb-list">
+          <li>🌡️ Soil Temperature <span>Maintains awareness of root comfort levels.</span></li>
+          <li>💧 Humidity Tracking <span>Ensures the microclimate around the plant is ideal.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature-box fade-in">
+      <div class="fb-header">
+        <div class="fb-icon">💡</div>
+        <div class="fb-title">LDR Light Sensor</div>
+      </div>
+      <div class="fb-content">
+        <p>A Light Dependent Resistor (LDR) continuously monitors the ambient light intensity hitting the plant's
+          leaves, crucial for photosynthesis.</p>
+        <ul class="fb-list">
+          <li>☀️ Photoperiod Tracking <span>Detects daytime vs nighttime cycles.</span></li>
+          <li>🔆 Intensity Measurement <span>Warns if the plant is in overly shaded or harsh light.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature-box fade-in">
+      <div class="fb-header">
+        <div class="fb-icon">📊</div>
+        <div class="fb-title">Advanced Diagnostics</div>
+      </div>
+      <div class="fb-content">
+        <p>Beyond raw sensor data, PythoSense calculates derived metrics using agricultural formulas to give you
+          actionable insights.</p>
+        <ul class="fb-list">
+          <li>🌫️ Evaporation Index <span>Calculated via Penman-Monteith (ET₀) approximations based on temp and
+              humidity.</span></li>
+          <li>🚿 Water Requirement <span>Combines expected evaporation with current soil moisture to determine daily
+              watering volume.</span></li>
+          <li>🪱 Soil Moisture % <span>Direct capacitive measurement of the soil's dielectric constant.</span></li>
+        </ul>
+      </div>
+    </div>
+
+    <div class="feature-box fade-in">
+      <div class="fb-header">
+        <div class="fb-icon">❤️</div>
+        <div class="fb-title">Plant Health Score</div>
+      </div>
+      <div class="fb-content">
+        <p>All data streams are fed into an intelligent weighing algorithm that produces a unified 0-100 Health Score.
+          This makes monitoring your plant's status as simple as reading a single grade. We compare current real-time
+          metrics against ideal thresholds for standard houseplants to determine whether conditions are optimal,
+          acceptable, or harmful.</p>
+      </div>
+    </div>
+
+  </div>
+
+  <footer>
+    <p>Built with 🌿 by <span>PythoSense</span> · Plant Intelligence System</p>
+  </footer>
+
+  <script>
+    /* Particles */
+    (function () {
+      const field = document.getElementById('particleField');
+      for (let i = 0; i < 22; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 4 + 2;
+        p.style.cssText = `
+          width:${size}px;height:${size}px;
+          left:${Math.random() * 100}%;
+          bottom:${Math.random() * 20}%;
+          --dur:${Math.random() * 14 + 8}s;
+          --delay:${Math.random() * 10}s;
+          opacity:0;
+        `;
+        field.appendChild(p);
+      }
+    })();
+
+    /* Fade-in */
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.1 });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+  </script>
+</body>
+
+</html>
