@@ -12,7 +12,7 @@
     href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap"
     rel="stylesheet" />
 
-  <link rel="stylesheet" href="css/features.css" />
+  <link rel="stylesheet" href="../css/features.css" />
 </head>
 
 <body>
@@ -22,12 +22,12 @@
 
   <!-- NAV -->
   <nav>
-    <a class="nav-brand" href="index.html">
+    <a class="nav-brand" href="../index.html">
       <div class="nav-logo">🌿</div>
       <span class="nav-title">PythoSense</span>
     </a>
     <ul class="nav-links">
-      <li><a href="index.html" id="nav-dashboard">Dashboard</a></li>
+      <li><a href="../index.html" id="nav-dashboard">Dashboard</a></li>
       <li><a href="features.html" class="active" id="nav-features">Features</a></li>
     </ul>
   </nav>
@@ -90,13 +90,30 @@
     <div class="feature-box fade-in">
       <div class="fb-header">
         <div class="fb-icon">❤️</div>
-        <div class="fb-title">Plant Health Score</div>
+        <div class="fb-title">Plant Health Score Algorithm</div>
       </div>
       <div class="fb-content">
         <p>All data streams are fed into an intelligent weighing algorithm that produces a unified 0-100 Health Score.
-          This makes monitoring your plant's status as simple as reading a single grade. We compare current real-time
-          metrics against ideal thresholds for standard houseplants to determine whether conditions are optimal,
-          acceptable, or harmful.</p>
+          This makes monitoring your plant's status as simple as reading a single grade. The scoring model evaluates individual parameters based on their immediate impact on plant vitality:</p>
+        <ul class="fb-list">
+          <li>⚖️ Weighted Distribution <span><strong>Moisture (40%)</strong>, <strong>Light (25%)</strong>, <strong>Temp (20%)</strong>, and <strong>Humidity (15%)</strong> form the base metrics.</span></li>
+          <li>🎯 Dynamic Deviation <span>Metrics are compared against ideal thresholds. Deviations outside optimal bands reduce points based on a quadratic curve (stronger penalty for severe deviations).</span></li>
+          <li>📉 Stress Multipliers <span>If synergistic stress occurs (e.g., high heat + low moisture), an additional compound penalty multiplier (up to 1.5x) is applied.</span></li>
+          <li>🛡️ Trailing Average <span>A statistical smoothing function is applied over the trailing 15-minute window to eliminate fleeting anomalies and provide a stable health grade.</span></li>
+        </ul>
+
+        <p style="margin-top: 25px; font-weight: 600; color: var(--text-primary); font-size: 1.1rem;">Mathematical Formulation:</p>
+        <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-top: 12px; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.8; color: var(--text-primary);">
+          <span style="color: var(--teal-400);">BaseScore</span> = <br>
+          &nbsp;&nbsp;100 - ( <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(ΔMoisture² × 0.40) + <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(ΔLight × 0.25) + <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(ΔTemp² × 0.20) + <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(ΔHumidity × 0.15) <br>
+          &nbsp;&nbsp;)<br><br>
+          <span style="color: #f87171;">Final Health Score</span> = <span style="color: var(--teal-400);">BaseScore</span> × (1 - <span style="color: var(--amber-400);">SynergisticStressMultiplier</span>)
+        </div>
+        <p style="margin-top: 14px; font-size: 0.95rem; color: var(--text-muted); line-height: 1.6;">Where <code>Δ</code> represents the absolute percentage deviation from the plant's ideal target value. Variables like Temperature and Moisture are <span style="color: #f87171; font-weight: 500;">squared</span> because extreme deviations in those core metrics are exponentially more dangerous to root systems than minor fluctuations.</p>
       </div>
     </div>
 
