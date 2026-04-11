@@ -376,6 +376,138 @@
     .card-hum   .gauge-fill { background: linear-gradient(90deg, #60a5fa, #2dd4bf); }
     .card-light .gauge-fill { background: linear-gradient(90deg, #fbbf24, #f97316); }
 
+    /* ─── Computed metric card variants ────────────────────────── */
+    .card-evap     { --card-accent-color: #fb923c; --card-glow: rgba(251,146,60,0.09); }
+    .card-water    { --card-accent-color: #22d3ee; --card-glow: rgba(34,211,238,0.09); }
+    .card-moisture { --card-accent-color: #a78bfa; --card-glow: rgba(167,139,250,0.09); }
+
+    .card-evap     .card-icon-wrap { background: rgba(251,146,60,0.15); }
+    .card-water    .card-icon-wrap { background: rgba(34,211,238,0.15); }
+    .card-moisture .card-icon-wrap { background: rgba(167,139,250,0.15); }
+
+    .card-evap     .card-value { color: #fb923c; }
+    .card-water    .card-value { color: #22d3ee; }
+    .card-moisture .card-value { color: #a78bfa; }
+
+    .card-evap     .gauge-fill { background: linear-gradient(90deg, #fb923c, #fbbf24); }
+    .card-water    .gauge-fill { background: linear-gradient(90deg, #22d3ee, #60a5fa); }
+    .card-moisture .gauge-fill { background: linear-gradient(90deg, #a78bfa, #818cf8); }
+
+    /* ─── Plant Health Score Card ───────────────────────────────── */
+    .health-score-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 32px;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      margin-bottom: 40px;
+      display: grid;
+      grid-template-columns: auto 1fr;
+      gap: 40px;
+      align-items: center;
+    }
+    @media (max-width: 720px) { .health-score-card { grid-template-columns: 1fr; justify-items: center; } }
+
+    .hs-gauge-wrap {
+      position: relative;
+      width: 200px;
+      height: 200px;
+      flex-shrink: 0;
+    }
+    .hs-gauge-wrap svg { width: 100%; height: 100%; transform: rotate(-90deg); }
+    .hs-track { fill: none; stroke: rgba(255,255,255,0.06); stroke-width: 14; }
+    .hs-fill {
+      fill: none;
+      stroke: url(#healthGrad);
+      stroke-width: 14;
+      stroke-linecap: round;
+      stroke-dasharray: 565;
+      stroke-dashoffset: 124;
+      transition: stroke-dashoffset 1.6s cubic-bezier(0.25,1,0.5,1);
+    }
+    .hs-center {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 3px;
+    }
+    .hs-score-num {
+      font-size: 3rem;
+      font-weight: 800;
+      font-family: var(--font-mono);
+      color: var(--green-400);
+      line-height: 1;
+      letter-spacing: -2px;
+    }
+    .hs-score-denom { font-size: 0.78rem; color: var(--text-muted); font-weight: 600; }
+    .hs-grade {
+      margin-top: 5px;
+      font-size: 0.7rem;
+      font-weight: 800;
+      padding: 3px 10px;
+      border-radius: 100px;
+      background: rgba(74,222,128,0.14);
+      color: var(--green-400);
+      letter-spacing: 0.5px;
+    }
+    .hs-right h3 {
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: var(--text-primary);
+      margin-bottom: 6px;
+    }
+    .hs-right > p {
+      font-size: 0.84rem;
+      color: var(--text-muted);
+      margin-bottom: 22px;
+      line-height: 1.65;
+    }
+    .hs-metric-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+    }
+    @media (max-width: 920px) { .hs-metric-grid { grid-template-columns: repeat(2,1fr); } }
+    @media (max-width: 480px)  { .hs-metric-grid { grid-template-columns: 1fr; } }
+    .hs-metric-chip {
+      background: rgba(255,255,255,0.03);
+      border: 1px solid rgba(255,255,255,0.06);
+      border-radius: 12px;
+      padding: 12px 14px;
+      transition: border-color 0.2s;
+    }
+    .hs-metric-chip:hover { border-color: rgba(74,222,128,0.18); }
+    .hs-chip-label {
+      font-size: 0.67rem;
+      color: var(--text-dim);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.9px;
+      margin-bottom: 6px;
+    }
+    .hs-chip-row {
+      display: flex;
+      align-items: baseline;
+      justify-content: space-between;
+      gap: 4px;
+      flex-wrap: wrap;
+    }
+    .hs-chip-val {
+      font-size: 0.95rem;
+      font-weight: 700;
+      font-family: var(--font-mono);
+    }
+    .hs-chip-badge {
+      font-size: 0.6rem;
+      font-weight: 700;
+      padding: 2px 7px;
+      border-radius: 100px;
+    }
+
     /* Animated number counter */
     .count-anim {
       display: inline-block;
@@ -802,6 +934,48 @@
 
     </div>
 
+    <!-- COMPUTED METRICS -->
+    <div class="section-label fade-in"><h2>Computed Metrics</h2></div>
+    <div class="sensor-grid fade-in">
+
+      <!-- Evaporation Index -->
+      <div class="sensor-card card-evap fade-in">
+        <div class="card-icon-wrap">🌫️</div>
+        <div class="card-label">Evaporation Index</div>
+        <div class="card-sensor-id">Derived · Temp + Humidity (ET₀)</div>
+        <div class="card-value">
+          <span class="count-anim" id="evap-val">3.8</span><span class="card-unit">mm/d</span>
+        </div>
+        <span class="card-status status-ok">✔ Low Evaporation</span>
+        <div class="gauge-track"><div class="gauge-fill" id="evap-gauge" style="width:32%"></div></div>
+      </div>
+
+      <!-- Plant Water Requirement -->
+      <div class="sensor-card card-water fade-in">
+        <div class="card-icon-wrap">🚿</div>
+        <div class="card-label">Water Requirement</div>
+        <div class="card-sensor-id">Derived · Moisture + Evap Index</div>
+        <div class="card-value">
+          <span class="count-anim" id="water-val">210</span><span class="card-unit">mL/d</span>
+        </div>
+        <span class="card-status status-ok">✔ Normal Need</span>
+        <div class="gauge-track"><div class="gauge-fill" id="water-gauge" style="width:42%"></div></div>
+      </div>
+
+      <!-- Soil Moisture -->
+      <div class="sensor-card card-moisture fade-in">
+        <div class="card-icon-wrap">🪱</div>
+        <div class="card-label">Soil Moisture</div>
+        <div class="card-sensor-id">Sensor · Capacitive · CH-04</div>
+        <div class="card-value">
+          <span class="count-anim" id="moisture-val">58</span><span class="card-unit">%</span>
+        </div>
+        <span class="card-status status-ok">✔ Moist &amp; Healthy</span>
+        <div class="gauge-track"><div class="gauge-fill" id="moisture-gauge" style="width:58%"></div></div>
+      </div>
+
+    </div>
+
     <!-- INFO STRIP -->
     <div class="info-strip fade-in">
       <div class="info-tile">
@@ -879,37 +1053,79 @@
       </div>
     </div>
 
-    <!-- PLANT HEALTH -->
-    <div class="section-label fade-in"><h2>Plant Health Overview</h2></div>
-    <div class="health-panel fade-in">
-      <div class="health-header">
-        <div class="health-score-wrap">
-          <div class="health-score-ring">
-            <div class="health-score-val">78</div>
+    <!-- PLANT HEALTH SCORE -->
+    <div class="section-label fade-in"><h2>Plant Health Score</h2></div>
+    <div class="health-score-card fade-in">
+
+      <!-- Animated donut gauge -->
+      <div class="hs-gauge-wrap">
+        <svg viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#4ade80"/>
+              <stop offset="100%" stop-color="#2dd4bf"/>
+            </linearGradient>
+          </defs>
+          <circle class="hs-track" cx="100" cy="100" r="90"/>
+          <circle class="hs-fill"  cx="100" cy="100" r="90" id="hsFill"/>
+        </svg>
+        <div class="hs-center">
+          <div class="hs-score-num" id="hs-score-num">78</div>
+          <div class="hs-score-denom">/ 100</div>
+          <div class="hs-grade" id="hs-grade">Grade B+</div>
+        </div>
+      </div>
+
+      <!-- Right content -->
+      <div class="hs-right">
+        <h3 id="hs-title">Good Condition 🌿</h3>
+        <p id="hs-desc">Core parameters are within acceptable ranges. Light exposure is slightly below ideal — consider repositioning near a window to boost the score further.</p>
+        <div class="hs-metric-grid">
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Temperature</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#f87171">28.4 °C</span>
+              <span class="hs-chip-badge status-ok">Optimal</span>
+            </div>
           </div>
-          <div class="health-score-info">
-            <h3>Good Condition 🌿</h3>
-            <p>All core parameters are within acceptable ranges. Light could be improved.</p>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Humidity</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#60a5fa">63 %</span>
+              <span class="hs-chip-badge status-ok">Optimal</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Light Intensity</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#fbbf24">742 lx</span>
+              <span class="hs-chip-badge status-warn">Low</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Soil Moisture</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#a78bfa">58 %</span>
+              <span class="hs-chip-badge status-ok">Moist</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Evaporation</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#fb923c">3.8 mm/d</span>
+              <span class="hs-chip-badge status-ok">Low</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Water Need</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#22d3ee">210 mL/d</span>
+              <span class="hs-chip-badge status-ok">Normal</span>
+            </div>
           </div>
         </div>
       </div>
-      <div class="health-bars">
-        <div class="health-bar-item">
-          <div class="health-bar-top"><span>Temperature</span><span style="color:#f87171">28.4 °C</span></div>
-          <div class="health-bar-track"><div class="health-bar-fill" style="width:72%;background:linear-gradient(90deg,#f87171,#fbbf24)"></div></div>
-          <div class="health-bar-caption">Ideal: 18–30 °C · Status: Optimal</div>
-        </div>
-        <div class="health-bar-item">
-          <div class="health-bar-top"><span>Humidity</span><span style="color:#60a5fa">63 %</span></div>
-          <div class="health-bar-track"><div class="health-bar-fill" style="width:63%;background:linear-gradient(90deg,#60a5fa,#2dd4bf)"></div></div>
-          <div class="health-bar-caption">Ideal: 40–80 % · Status: Well Hydrated</div>
-        </div>
-        <div class="health-bar-item">
-          <div class="health-bar-top"><span>Light</span><span style="color:#fbbf24">742 lx</span></div>
-          <div class="health-bar-track"><div class="health-bar-fill" style="width:42%;background:linear-gradient(90deg,#fbbf24,#f97316)"></div></div>
-          <div class="health-bar-caption">Ideal: 1000–2000 lx · Status: Slightly Low</div>
-        </div>
-      </div>
+
     </div>
 
     <!-- HISTORY TABLE -->
@@ -1160,6 +1376,31 @@
       const offset = 502 - (502 * (l / 1750));
       document.getElementById('radialFill').style.strokeDashoffset = offset;
     }, 5000);
+
+    /* ── Computed Metrics Live Updates ─────────────────────────── */
+    setInterval(() => {
+      // evaporation index (mm/day) 0–12 scale
+      const ev = (3.8 + (Math.random() - 0.5) * 0.7).toFixed(1);
+      document.getElementById('evap-val').textContent = ev;
+      document.getElementById('evap-gauge').style.width = Math.min(100, (ev / 12) * 100) + '%';
+      // water requirement (mL/day) 0–500 scale
+      const wr = Math.round(210 + (Math.random() - 0.5) * 30);
+      document.getElementById('water-val').textContent = wr;
+      document.getElementById('water-gauge').style.width = Math.min(100, (wr / 500) * 100) + '%';
+      // soil moisture %
+      const sm = Math.round(58 + (Math.random() - 0.5) * 6);
+      document.getElementById('moisture-val').textContent = sm;
+      document.getElementById('moisture-gauge').style.width = Math.min(100, sm) + '%';
+    }, 5000);
+
+    /* ── Health Score Gauge Init ────────────────────────────────── */
+    (function () {
+      const score = 78;
+      const r = 90, circ = 2 * Math.PI * r; // ~565.5
+      const offset = circ * (1 - score / 100);
+      document.getElementById('hsFill').style.strokeDasharray  = circ;
+      document.getElementById('hsFill').style.strokeDashoffset = offset;
+    })();
   </script>
 </body>
 </html>
