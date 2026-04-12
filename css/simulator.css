@@ -1,0 +1,420 @@
+/* ─── Simulator-Specific Styles ────────────────────────────────── */
+
+/* ─── Simulator Controls Panel ────────────────────────────────── */
+.sim-controls-panel {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 32px;
+  backdrop-filter: blur(16px);
+  -webkit-backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 32px;
+}
+
+.sim-controls-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 28px;
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.sim-controls-title {
+  font-size: 1.15rem;
+  font-weight: 700;
+  color: var(--text-primary);
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.sim-controls-subtitle {
+  font-size: 0.78rem;
+  color: var(--text-muted);
+  margin-top: 4px;
+}
+
+.sim-mode-badge {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(251, 146, 60, 0.12);
+  border: 1px solid rgba(251, 146, 60, 0.25);
+  border-radius: 20px;
+  padding: 6px 16px;
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: #fb923c;
+}
+
+.sim-mode-badge .pulse-dot {
+  background: #fb923c;
+  box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.6);
+  animation: pulse-orange 2s infinite;
+}
+
+@keyframes pulse-orange {
+  0%, 100% { box-shadow: 0 0 0 0 rgba(251, 146, 60, 0.6); }
+  50%       { box-shadow: 0 0 0 6px rgba(251, 146, 60, 0); }
+}
+
+/* Slider Grid */
+.sim-slider-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 20px;
+}
+
+@media (max-width: 700px) {
+  .sim-slider-grid { grid-template-columns: 1fr; }
+}
+
+.sim-slider-item {
+  background: rgba(255, 255, 255, 0.025);
+  border: 1px solid rgba(255, 255, 255, 0.06);
+  border-radius: 16px;
+  padding: 20px 22px;
+  transition: border-color 0.2s, background 0.2s;
+}
+
+.sim-slider-item:hover {
+  border-color: rgba(74, 222, 128, 0.18);
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.sim-slider-top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 6px;
+}
+
+.sim-slider-label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.sim-slider-label .sim-icon {
+  font-size: 1.1rem;
+}
+
+.sim-slider-value {
+  font-size: 1.3rem;
+  font-weight: 700;
+  font-family: var(--font-mono);
+  letter-spacing: -0.5px;
+}
+
+.sim-slider-range-info {
+  font-size: 0.68rem;
+  color: var(--text-dim);
+  font-family: var(--font-mono);
+  margin-bottom: 12px;
+}
+
+/* Custom Range Slider */
+.sim-range {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 6px;
+  border-radius: 100px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.15s;
+}
+
+/* Track */
+.sim-range::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 100px;
+}
+
+.sim-range::-moz-range-track {
+  height: 6px;
+  border-radius: 100px;
+  border: none;
+}
+
+/* Thumb */
+.sim-range::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid;
+  cursor: pointer;
+  margin-top: -8px;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.sim-range::-moz-range-thumb {
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  border: 3px solid;
+  cursor: pointer;
+  box-shadow: 0 0 12px rgba(0, 0, 0, 0.4);
+  transition: transform 0.15s, box-shadow 0.15s;
+}
+
+.sim-range:active::-webkit-slider-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+.sim-range:active::-moz-range-thumb {
+  transform: scale(1.15);
+  box-shadow: 0 0 20px rgba(0, 0, 0, 0.5);
+}
+
+/* Temperature slider */
+.sim-range-temp { background: linear-gradient(90deg, #2dd4bf, #f87171); }
+.sim-range-temp::-webkit-slider-thumb { background: #f87171; border-color: #fecaca; }
+.sim-range-temp::-moz-range-thumb { background: #f87171; border-color: #fecaca; }
+.val-temp { color: #f87171; }
+
+/* Humidity slider */
+.sim-range-hum { background: linear-gradient(90deg, #1e3a5f, #60a5fa); }
+.sim-range-hum::-webkit-slider-thumb { background: #60a5fa; border-color: #bfdbfe; }
+.sim-range-hum::-moz-range-thumb { background: #60a5fa; border-color: #bfdbfe; }
+.val-hum { color: #60a5fa; }
+
+/* Light slider */
+.sim-range-light { background: linear-gradient(90deg, #2a1f05, #fbbf24); }
+.sim-range-light::-webkit-slider-thumb { background: #fbbf24; border-color: #fef3c7; }
+.sim-range-light::-moz-range-thumb { background: #fbbf24; border-color: #fef3c7; }
+.val-light { color: #fbbf24; }
+
+/* Moisture slider */
+.sim-range-moist { background: linear-gradient(90deg, #1e1042, #a78bfa); }
+.sim-range-moist::-webkit-slider-thumb { background: #a78bfa; border-color: #ddd6fe; }
+.sim-range-moist::-moz-range-thumb { background: #a78bfa; border-color: #ddd6fe; }
+.val-moist { color: #a78bfa; }
+
+/* ─── Python Terminal / Code Display ──────────────────────────── */
+.python-terminal {
+  background: rgba(6, 10, 8, 0.92);
+  border: 1px solid rgba(74, 222, 128, 0.15);
+  border-radius: var(--radius-xl);
+  padding: 0;
+  overflow: hidden;
+  margin-bottom: 32px;
+  box-shadow: 0 8px 40px rgba(0, 0, 0, 0.55), inset 0 1px 0 rgba(74, 222, 128, 0.06);
+}
+
+.terminal-bar {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 12px 20px;
+  background: rgba(10, 20, 14, 0.8);
+  border-bottom: 1px solid rgba(74, 222, 128, 0.1);
+}
+
+.terminal-dot {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+}
+
+.dot-red    { background: #f87171; }
+.dot-yellow { background: #fbbf24; }
+.dot-green  { background: #4ade80; }
+
+.terminal-title {
+  margin-left: 12px;
+  font-size: 0.75rem;
+  font-family: var(--font-mono);
+  color: var(--text-dim);
+  font-weight: 600;
+}
+
+.terminal-body {
+  padding: 20px 24px;
+  max-height: 350px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.78rem;
+  line-height: 1.65;
+  color: #7aab8a;
+}
+
+.terminal-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.terminal-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.terminal-body::-webkit-scrollbar-thumb {
+  background: rgba(74, 222, 128, 0.15);
+  border-radius: 100px;
+}
+
+.t-keyword  { color: #c084fc; }
+.t-func     { color: #60a5fa; }
+.t-string   { color: #4ade80; }
+.t-comment  { color: #395447; font-style: italic; }
+.t-number   { color: #fbbf24; }
+.t-operator { color: #f87171; }
+.t-class    { color: #2dd4bf; }
+.t-output   { color: #e8f5ee; }
+.t-prompt   { color: #fb923c; font-weight: 700; }
+.t-dim      { color: #395447; }
+
+.terminal-line {
+  display: block;
+  padding: 1px 0;
+  white-space: pre-wrap;
+  word-break: break-all;
+}
+
+/* Live JSON response in terminal */
+.terminal-json {
+  display: block;
+  padding: 12px 16px;
+  margin: 8px 0;
+  background: rgba(74, 222, 128, 0.04);
+  border: 1px solid rgba(74, 222, 128, 0.08);
+  border-radius: 10px;
+  font-size: 0.74rem;
+}
+
+.terminal-json .json-key { color: #60a5fa; }
+.terminal-json .json-val-str { color: #4ade80; }
+.terminal-json .json-val-num { color: #fbbf24; }
+
+/* ─── Python Backend Status Indicator ─────────────────────────── */
+.python-status-strip {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  padding: 14px 22px;
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: 14px;
+  margin-bottom: 32px;
+  flex-wrap: wrap;
+}
+
+.py-status-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  flex-shrink: 0;
+}
+
+.py-status-dot.online {
+  background: #4ade80;
+  box-shadow: 0 0 8px rgba(74, 222, 128, 0.6);
+  animation: pulse 2s infinite;
+}
+
+.py-status-dot.offline {
+  background: #f87171;
+  box-shadow: 0 0 8px rgba(248, 113, 113, 0.4);
+}
+
+.py-status-text {
+  font-size: 0.82rem;
+  font-weight: 600;
+  color: var(--text-muted);
+}
+
+.py-status-text span {
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+}
+
+.py-status-fallback {
+  margin-left: auto;
+  font-size: 0.72rem;
+  color: var(--text-dim);
+  font-style: italic;
+}
+
+/* ─── Simulator Charts Grid ──────────────────────────────────── */
+.sim-charts-grid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+  margin-bottom: 32px;
+}
+
+@media (max-width: 860px) {
+  .sim-charts-grid { grid-template-columns: 1fr; }
+}
+
+/* ─── Simulator Nav Button ────────────────────────────────────── */
+.nav-links .nav-sim-btn {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(251, 191, 36, 0.10));
+  border: 1px solid rgba(251, 146, 60, 0.30);
+  color: #fb923c;
+  font-weight: 600;
+  padding: 7px 16px;
+  border-radius: 10px;
+  transition: all 0.22s;
+}
+
+.nav-links .nav-sim-btn:hover {
+  background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(251, 191, 36, 0.18));
+  border-color: rgba(251, 146, 60, 0.50);
+  color: #fbbf24;
+  transform: translateY(-1px);
+  box-shadow: 0 4px 16px rgba(251, 146, 60, 0.15);
+}
+
+/* ─── Live Data Stream Log ────────────────────────────────────── */
+.stream-log {
+  background: var(--bg-card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-xl);
+  padding: 28px;
+  backdrop-filter: blur(16px);
+  box-shadow: var(--shadow-card);
+  margin-bottom: 32px;
+}
+
+.stream-log-entries {
+  max-height: 250px;
+  overflow-y: auto;
+  font-family: var(--font-mono);
+  font-size: 0.76rem;
+  line-height: 1.8;
+  color: var(--text-muted);
+}
+
+.stream-log-entries::-webkit-scrollbar {
+  width: 4px;
+}
+
+.stream-log-entries::-webkit-scrollbar-thumb {
+  background: rgba(74, 222, 128, 0.12);
+  border-radius: 100px;
+}
+
+.log-entry {
+  padding: 2px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.02);
+  animation: logSlide 0.3s ease-out;
+}
+
+@keyframes logSlide {
+  from { opacity: 0; transform: translateX(-10px); }
+  to   { opacity: 1; transform: translateX(0); }
+}
+
+.log-time  { color: var(--text-dim); }
+.log-arrow { color: #fb923c; margin: 0 6px; }
+.log-src   { color: #a78bfa; }
+.log-pipe  { color: var(--text-dim); margin: 0 4px; }

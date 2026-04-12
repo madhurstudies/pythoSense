@@ -1,0 +1,811 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>PythoSense — Sensor Simulator</title>
+  <meta name="description" content="PythoSense Sensor Simulator: Simulate Arduino DHT22, LDR, and soil moisture sensor data in real-time. Adjust sliders and watch the dashboard respond instantly." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+  <link rel="stylesheet" href="css/index.css" />
+  <link rel="stylesheet" href="css/simulator.css" />
+</head>
+<body>
+
+  <!-- Particle field -->
+  <div class="particle-field" id="particleField"></div>
+
+  <!-- NAV -->
+  <nav>
+    <a class="nav-brand" href="index.html" id="nav-home">
+      <div class="nav-logo">🌿</div>
+      <span class="nav-title">PythoSense</span>
+    </a>
+    <ul class="nav-links">
+      <li><a href="index.html" id="nav-dashboard">Dashboard</a></li>
+      <li><a href="pages/features.html" id="nav-features">Features</a></li>
+      <li><a href="simulator.html" class="active nav-sim-btn" id="nav-simulator">⚡ Simulator</a></li>
+    </ul>
+    <div class="nav-badge" style="background:rgba(251,146,60,0.12);border-color:rgba(251,146,60,0.25);color:#fb923c;">
+      <span class="pulse-dot" style="background:#fb923c;box-shadow:0 0 0 0 rgba(251,146,60,0.6);animation:pulse-orange 2s infinite"></span>Simulation Mode
+    </div>
+  </nav>
+
+  <div class="wrapper">
+
+    <!-- HERO -->
+    <section class="hero fade-in" id="hero" style="padding-bottom: 20px;">
+      <div class="hero-eyebrow">⚡ Arduino Data Simulator</div>
+      <h1>Sensor<br /><span>Simulator</span></h1>
+    </section>
+
+    <!-- PYTHON BACKEND STATUS -->
+    <div class="python-status-strip fade-in" id="py-status-strip">
+      <div class="py-status-dot offline" id="py-status-dot"></div>
+      <div class="py-status-text" id="py-status-text">
+        Python Backend: <span>Checking...</span>
+      </div>
+      <div class="py-status-fallback" id="py-status-fallback">
+        Using JS-only fallback computations
+      </div>
+    </div>
+
+    <!-- SLIDER CONTROLS -->
+    <div class="section-label fade-in"><h2>Sensor Input Controls</h2></div>
+    <div class="sim-controls-panel fade-in">
+      <div class="sim-controls-header">
+        <div>
+          <div class="sim-controls-title">🎛️ Virtual Arduino Inputs</div>
+          <div class="sim-controls-subtitle">Drag sliders to simulate sensor readings — all metrics recompute in real-time</div>
+        </div>
+        <div class="sim-mode-badge">
+          <span class="pulse-dot"></span>Live Simulation
+        </div>
+      </div>
+
+      <div class="sim-slider-grid">
+        <!-- Temperature -->
+        <div class="sim-slider-item">
+          <div class="sim-slider-top">
+            <div class="sim-slider-label"><span class="sim-icon">🌡️</span> Soil Temperature</div>
+            <div class="sim-slider-value val-temp" id="sim-temp-val">28.4 °C</div>
+          </div>
+          <div class="sim-slider-range-info">Range: 0 – 50 °C · Sensor: DHT22</div>
+          <input type="range" class="sim-range sim-range-temp" id="sim-temp" min="0" max="50" step="0.1" value="28.4" />
+        </div>
+
+        <!-- Humidity -->
+        <div class="sim-slider-item">
+          <div class="sim-slider-top">
+            <div class="sim-slider-label"><span class="sim-icon">💧</span> Soil Humidity</div>
+            <div class="sim-slider-value val-hum" id="sim-hum-val">63 %</div>
+          </div>
+          <div class="sim-slider-range-info">Range: 0 – 100 % · Sensor: DHT22</div>
+          <input type="range" class="sim-range sim-range-hum" id="sim-hum" min="0" max="100" step="1" value="63" />
+        </div>
+
+        <!-- Light -->
+        <div class="sim-slider-item">
+          <div class="sim-slider-top">
+            <div class="sim-slider-label"><span class="sim-icon">☀️</span> Light Intensity</div>
+            <div class="sim-slider-value val-light" id="sim-light-val">742 lx</div>
+          </div>
+          <div class="sim-slider-range-info">Range: 0 – 1750 lx · Sensor: LDR (Photoresistor)</div>
+          <input type="range" class="sim-range sim-range-light" id="sim-light" min="0" max="1750" step="1" value="742" />
+        </div>
+
+        <!-- Moisture -->
+        <div class="sim-slider-item">
+          <div class="sim-slider-top">
+            <div class="sim-slider-label"><span class="sim-icon">🪱</span> Soil Moisture</div>
+            <div class="sim-slider-value val-moist" id="sim-moist-val">58 %</div>
+          </div>
+          <div class="sim-slider-range-info">Range: 0 – 100 % · Sensor: Capacitive</div>
+          <input type="range" class="sim-range sim-range-moist" id="sim-moist" min="0" max="100" step="1" value="58" />
+        </div>
+      </div>
+    </div>
+
+    <!-- LIVE SENSOR CARDS -->
+    <div class="section-label fade-in"><h2>Live Sensor Readings</h2></div>
+    <div class="sensor-grid" id="dashboard">
+      <!-- Temperature -->
+      <div class="sensor-card card-temp fade-in">
+        <div class="card-icon-wrap">🌡️</div>
+        <div class="card-label">Soil Temperature</div>
+        <div class="card-sensor-id">Sensor: DHT22 · CH-01 · SIMULATED</div>
+        <div class="card-value">
+          <span class="count-anim" id="temp-val">28.4</span><span class="card-unit">°C</span>
+        </div>
+        <span class="card-status status-ok" id="temp-status">✔ Optimal Range</span>
+        <div class="gauge-track"><div class="gauge-fill" id="temp-gauge" style="width: 56%"></div></div>
+      </div>
+
+      <!-- Humidity -->
+      <div class="sensor-card card-hum fade-in">
+        <div class="card-icon-wrap">💧</div>
+        <div class="card-label">Soil Humidity</div>
+        <div class="card-sensor-id">Sensor: DHT22 · CH-02 · SIMULATED</div>
+        <div class="card-value">
+          <span class="count-anim" id="hum-val">63</span><span class="card-unit">%</span>
+        </div>
+        <span class="card-status status-ok" id="hum-status">✔ Well Hydrated</span>
+        <div class="gauge-track"><div class="gauge-fill" id="hum-gauge" style="width: 63%"></div></div>
+      </div>
+
+      <!-- Light -->
+      <div class="sensor-card card-light fade-in">
+        <div class="card-icon-wrap">☀️</div>
+        <div class="card-label">Light Intensity</div>
+        <div class="card-sensor-id">Sensor: LDR · CH-03 · SIMULATED</div>
+        <div class="card-value">
+          <span class="count-anim" id="light-val">742</span><span class="card-unit">lx</span>
+        </div>
+        <span class="card-status status-warn" id="light-status">⚠ Slightly Low</span>
+        <div class="gauge-track"><div class="gauge-fill" id="light-gauge" style="width: 42%"></div></div>
+      </div>
+    </div>
+
+    <!-- COMPUTED METRICS -->
+    <div class="section-label fade-in"><h2>Computed Metrics</h2></div>
+    <div class="sensor-grid fade-in">
+      <!-- Evaporation Index -->
+      <div class="sensor-card card-evap fade-in">
+        <div class="card-icon-wrap">🌫️</div>
+        <div class="card-label">Evaporation Index</div>
+        <div class="card-sensor-id">Derived · Temp + Humidity (ET₀)</div>
+        <div class="card-value">
+          <span class="count-anim" id="evap-val">3.8</span><span class="card-unit">mm/d</span>
+        </div>
+        <span class="card-status status-ok" id="evap-status">✔ Low Evaporation</span>
+        <div class="gauge-track"><div class="gauge-fill" id="evap-gauge" style="width:32%"></div></div>
+      </div>
+
+      <!-- Plant Water Requirement -->
+      <div class="sensor-card card-water fade-in">
+        <div class="card-icon-wrap">🚿</div>
+        <div class="card-label">Water Requirement</div>
+        <div class="card-sensor-id">Derived · Moisture + Evap Index</div>
+        <div class="card-value">
+          <span class="count-anim" id="water-val">210</span><span class="card-unit">mL/d</span>
+        </div>
+        <span class="card-status status-ok" id="water-status">✔ Normal Need</span>
+        <div class="gauge-track"><div class="gauge-fill" id="water-gauge" style="width:42%"></div></div>
+      </div>
+
+      <!-- Soil Moisture -->
+      <div class="sensor-card card-moisture fade-in">
+        <div class="card-icon-wrap">🪱</div>
+        <div class="card-label">Soil Moisture</div>
+        <div class="card-sensor-id">Sensor · Capacitive · CH-04 · SIMULATED</div>
+        <div class="card-value">
+          <span class="count-anim" id="moisture-val">58</span><span class="card-unit">%</span>
+        </div>
+        <span class="card-status status-ok" id="moisture-status">✔ Moist &amp; Healthy</span>
+        <div class="gauge-track"><div class="gauge-fill" id="moisture-gauge" style="width:58%"></div></div>
+      </div>
+    </div>
+
+    <!-- CHARTS -->
+    <div class="section-label fade-in"><h2>Real-Time Simulation Charts</h2></div>
+    <div class="sim-charts-grid fade-in">
+      <!-- Temp & Humidity Trend -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Temperature & Humidity — Live</div>
+            <div class="chart-subtitle">Rolling 30-point history from simulated input</div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Temp (°C)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>Humidity (%)</span>
+          </div>
+        </div>
+        <canvas id="simTrendChart" height="220"></canvas>
+      </div>
+
+      <!-- Light & Moisture Chart -->
+      <div class="chart-card">
+        <div class="chart-header">
+          <div>
+            <div class="chart-title">Light & Moisture — Live</div>
+            <div class="chart-subtitle">Rolling 30-point history from simulated input</div>
+          </div>
+          <div class="chart-legend">
+            <span class="legend-item"><span class="legend-dot" style="background:#fbbf24"></span>Light (lx)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Moisture (%)</span>
+          </div>
+        </div>
+        <canvas id="simLightMoistChart" height="220"></canvas>
+      </div>
+    </div>
+
+    <!-- PLANT HEALTH SCORE -->
+    <div class="section-label fade-in"><h2>Plant Health Score</h2></div>
+    <div class="health-score-card fade-in">
+      <div class="hs-gauge-wrap">
+        <svg viewBox="0 0 200 200">
+          <defs>
+            <linearGradient id="healthGrad" x1="0%" y1="0%" x2="100%" y2="100%">
+              <stop offset="0%"   stop-color="#4ade80"/>
+              <stop offset="100%" stop-color="#2dd4bf"/>
+            </linearGradient>
+          </defs>
+          <circle class="hs-track" cx="100" cy="100" r="90"/>
+          <circle class="hs-fill"  cx="100" cy="100" r="90" id="hsFill"/>
+        </svg>
+        <div class="hs-center">
+          <div class="hs-score-num" id="hs-score-num">78</div>
+          <div class="hs-score-denom">/ 100</div>
+          <div class="hs-grade" id="hs-grade">Grade B+</div>
+        </div>
+      </div>
+
+      <div class="hs-right">
+        <h3 id="hs-title">Good Condition 🌿</h3>
+        <p id="hs-desc">Core parameters are within acceptable ranges. Adjust the sliders to see how sensor changes affect your plant's health score in real-time.</p>
+        <div class="hs-metric-grid">
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Temperature</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#f87171" id="hs-temp-val">28.4 °C</span>
+              <span class="hs-chip-badge status-ok" id="hs-temp-badge">Optimal</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Humidity</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#60a5fa" id="hs-hum-val">63 %</span>
+              <span class="hs-chip-badge status-ok" id="hs-hum-badge">Optimal</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Light Intensity</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#fbbf24" id="hs-light-val">742 lx</span>
+              <span class="hs-chip-badge status-warn" id="hs-light-badge">Low</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Soil Moisture</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#a78bfa" id="hs-moist-val">58 %</span>
+              <span class="hs-chip-badge status-ok" id="hs-moist-badge">Moist</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Evaporation</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#fb923c" id="hs-evap-val">3.8 mm/d</span>
+              <span class="hs-chip-badge status-ok" id="hs-evap-badge">Low</span>
+            </div>
+          </div>
+          <div class="hs-metric-chip">
+            <div class="hs-chip-label">Water Need</div>
+            <div class="hs-chip-row">
+              <span class="hs-chip-val" style="color:#22d3ee" id="hs-water-val">210 mL/d</span>
+              <span class="hs-chip-badge status-ok" id="hs-water-badge">Normal</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- PYTHON CODE DISPLAY -->
+    <div class="section-label fade-in"><h2>Python Backend — Live Code</h2></div>
+    <div class="python-terminal fade-in">
+      <div class="terminal-bar">
+        <div class="terminal-dot dot-red"></div>
+        <div class="terminal-dot dot-yellow"></div>
+        <div class="terminal-dot dot-green"></div>
+        <div class="terminal-title">simulator_engine.py — Python 3.12 · Flask Server</div>
+      </div>
+      <div class="terminal-body">
+        <span class="terminal-line"><span class="t-comment"># PythoSense — Arduino Sensor Simulator Engine</span></span>
+        <span class="terminal-line"><span class="t-comment"># python/simulator_engine.py</span></span>
+        <span class="terminal-line"></span>
+        <span class="terminal-line"><span class="t-keyword">from</span> <span class="t-class">flask</span> <span class="t-keyword">import</span> Flask, jsonify, request</span>
+        <span class="terminal-line"><span class="t-keyword">import</span> <span class="t-class">math</span>, <span class="t-class">random</span>, <span class="t-class">time</span></span>
+        <span class="terminal-line"></span>
+        <span class="terminal-line"><span class="t-keyword">def</span> <span class="t-func">compute_evaporation_index</span>(temperature, humidity):</span>
+        <span class="terminal-line">    <span class="t-comment">"""Simplified Penman–Monteith ET₀ approximation"""</span></span>
+        <span class="terminal-line">    svp <span class="t-operator">=</span> <span class="t-number">0.6108</span> <span class="t-operator">*</span> math.<span class="t-func">exp</span>((<span class="t-number">17.27</span> <span class="t-operator">*</span> temperature) <span class="t-operator">/</span> (temperature <span class="t-operator">+</span> <span class="t-number">237.3</span>))</span>
+        <span class="terminal-line">    avp <span class="t-operator">=</span> svp <span class="t-operator">*</span> (humidity <span class="t-operator">/</span> <span class="t-number">100.0</span>)</span>
+        <span class="terminal-line">    vpd <span class="t-operator">=</span> svp <span class="t-operator">-</span> avp</span>
+        <span class="terminal-line">    et0 <span class="t-operator">=</span> <span class="t-number">0.0023</span> <span class="t-operator">*</span> (temperature <span class="t-operator">+</span> <span class="t-number">17.8</span>) <span class="t-operator">*</span> math.<span class="t-func">sqrt</span>(<span class="t-func">max</span>(vpd <span class="t-operator">*</span> <span class="t-number">10</span>, <span class="t-number">0.01</span>)) <span class="t-operator">*</span> <span class="t-number">2.5</span></span>
+        <span class="terminal-line">    <span class="t-keyword">return</span> <span class="t-func">round</span>(<span class="t-func">max</span>(<span class="t-number">0</span>, <span class="t-func">min</span>(<span class="t-number">12</span>, et0)), <span class="t-number">1</span>)</span>
+        <span class="terminal-line"></span>
+        <span class="terminal-line"><span class="t-keyword">def</span> <span class="t-func">compute_health_score</span>(temp, hum, light, moisture):</span>
+        <span class="terminal-line">    <span class="t-comment">"""Weighted bell-curve scoring system"""</span></span>
+        <span class="terminal-line">    <span class="t-keyword">def</span> <span class="t-func">bell</span>(val, lo, hi, falloff):</span>
+        <span class="terminal-line">        <span class="t-keyword">if</span> lo <span class="t-operator">&lt;=</span> val <span class="t-operator">&lt;=</span> hi: <span class="t-keyword">return</span> <span class="t-number">100.0</span></span>
+        <span class="terminal-line">        d <span class="t-operator">=</span> (lo<span class="t-operator">-</span>val) <span class="t-keyword">if</span> val<span class="t-operator">&lt;</span>lo <span class="t-keyword">else</span> (val<span class="t-operator">-</span>hi)</span>
+        <span class="terminal-line">        <span class="t-keyword">return</span> <span class="t-func">max</span>(<span class="t-number">0</span>, <span class="t-number">100</span> <span class="t-operator">-</span> (d<span class="t-operator">/</span>falloff)<span class="t-operator">**</span><span class="t-number">2</span> <span class="t-operator">*</span> <span class="t-number">100</span>)</span>
+        <span class="terminal-line">    score <span class="t-operator">=</span> bell(temp,<span class="t-number">20</span>,<span class="t-number">30</span>,<span class="t-number">15</span>)<span class="t-operator">*</span><span class="t-number">.25</span> <span class="t-operator">+</span> bell(hum,<span class="t-number">50</span>,<span class="t-number">70</span>,<span class="t-number">25</span>)<span class="t-operator">*</span><span class="t-number">.20</span></span>
+        <span class="terminal-line">    score <span class="t-operator">+=</span> bell(light,<span class="t-number">500</span>,<span class="t-number">1500</span>,<span class="t-number">400</span>)<span class="t-operator">*</span><span class="t-number">.30</span> <span class="t-operator">+</span> bell(moisture,<span class="t-number">40</span>,<span class="t-number">70</span>,<span class="t-number">30</span>)<span class="t-operator">*</span><span class="t-number">.25</span></span>
+        <span class="terminal-line">    <span class="t-keyword">return</span> <span class="t-func">round</span>(score)</span>
+        <span class="terminal-line"></span>
+        <span class="terminal-line t-dim">═══════════════════════════════════════════════════════════</span>
+        <span class="terminal-line t-output">  🌿 PythoSense Simulator Engine — Python Backend</span>
+        <span class="terminal-line t-output">  📡 API running at <span class="t-string">http://localhost:5050/api/simulate</span></span>
+        <span class="terminal-line t-output">  🔧 Press Ctrl+C to stop</span>
+        <span class="terminal-line t-dim">═══════════════════════════════════════════════════════════</span>
+        <span class="terminal-line"></span>
+        <span class="terminal-line" id="terminal-live-line"><span class="t-prompt">&gt;&gt;&gt;</span> <span class="t-dim">Waiting for simulation data...</span></span>
+      </div>
+    </div>
+
+    <!-- DATA STREAM LOG -->
+    <div class="section-label fade-in"><h2>Data Stream Log</h2></div>
+    <div class="stream-log fade-in">
+      <div class="chart-header">
+        <div>
+          <div class="chart-title">📡 Simulated Serial Monitor</div>
+          <div class="chart-subtitle">Live data stream from virtual Arduino → Python → Dashboard</div>
+        </div>
+      </div>
+      <div class="stream-log-entries" id="stream-log-entries">
+        <!-- populated by JS -->
+      </div>
+    </div>
+
+  </div><!-- /wrapper -->
+
+  <footer>
+    <p>Built with 🌿 by <span>PythoSense</span> · Sensor Simulator · Python-powered backend processing</p>
+  </footer>
+
+  <!-- ─── SCRIPTS ─────────────────────────────────────────────── -->
+  <script>
+    /* ── Particles ──────────────────────────────────────────────── */
+    (function () {
+      const field = document.getElementById('particleField');
+      for (let i = 0; i < 22; i++) {
+        const p = document.createElement('div');
+        p.className = 'particle';
+        const size = Math.random() * 4 + 2;
+        p.style.cssText = `
+          width:${size}px;height:${size}px;
+          left:${Math.random()*100}%;
+          bottom:${Math.random()*20}%;
+          --dur:${Math.random()*14+8}s;
+          --delay:${Math.random()*10}s;
+          opacity:0;
+        `;
+        field.appendChild(p);
+      }
+    })();
+
+    /* ── Fade-in on scroll ──────────────────────────────────────── */
+    const obs = new IntersectionObserver(entries => {
+      entries.forEach(e => { if (e.isIntersecting) { e.target.classList.add('visible'); obs.unobserve(e.target); } });
+    }, { threshold: 0.12 });
+    document.querySelectorAll('.fade-in').forEach(el => obs.observe(el));
+
+    /* ═══════════════════════════════════════════════════════════════
+       SIMULATION ENGINE — JS Fallback (mirrors Python computations)
+       When Python backend is offline, these functions replicate the
+       exact same algorithms from simulator_engine.py
+       ═══════════════════════════════════════════════════════════════ */
+
+    let usePythonBackend = false;
+    const PYTHON_API = 'http://localhost:5050/api/simulate';
+
+    // Check if Python backend is running
+    async function checkPythonBackend() {
+      try {
+        const res = await fetch(PYTHON_API + '?temperature=25&humidity=50&light=800&moisture=55', {
+          signal: AbortSignal.timeout(2000)
+        });
+        if (res.ok) {
+          usePythonBackend = true;
+          document.getElementById('py-status-dot').className = 'py-status-dot online';
+          document.getElementById('py-status-text').innerHTML =
+            'Python Backend: <span style="color:#4ade80">Online at localhost:5050</span>';
+          document.getElementById('py-status-fallback').textContent =
+            'Computations routed to Python Flask API';
+          return;
+        }
+      } catch (e) {}
+      usePythonBackend = false;
+      document.getElementById('py-status-dot').className = 'py-status-dot offline';
+      document.getElementById('py-status-text').innerHTML =
+        'Python Backend: <span style="color:#f87171">Offline</span>';
+      document.getElementById('py-status-fallback').textContent =
+        'Using JS-only fallback (same algorithms as Python)';
+    }
+    checkPythonBackend();
+    setInterval(checkPythonBackend, 10000);
+
+    /* ── JS Fallback Functions (identical to Python) ────────────── */
+    function jsComputeEvapIndex(temp, hum) {
+      const svp = 0.6108 * Math.exp((17.27 * temp) / (temp + 237.3));
+      const avp = svp * (hum / 100.0);
+      const vpd = svp - avp;
+      const et0 = 0.0023 * (temp + 17.8) * Math.sqrt(Math.max(vpd * 10, 0.01)) * 2.5;
+      return Math.round(Math.max(0, Math.min(12, et0)) * 10) / 10;
+    }
+
+    function jsComputeWaterReq(moisture, evapIdx) {
+      const deficit = 1.0 - (moisture / 100.0);
+      return Math.round(Math.max(0, Math.min(500, (deficit * 300) + (evapIdx * 20))));
+    }
+
+    function jsBellScore(val, lo, hi, falloff) {
+      if (val >= lo && val <= hi) return 100;
+      const d = val < lo ? lo - val : val - hi;
+      return Math.max(0, 100 - Math.pow(d / falloff, 2) * 100);
+    }
+
+    function jsComputeHealth(temp, hum, light, moisture) {
+      const sT = jsBellScore(temp, 20, 30, 15);
+      const sH = jsBellScore(hum, 50, 70, 25);
+      const sL = jsBellScore(light, 500, 1500, 400);
+      const sM = jsBellScore(moisture, 40, 70, 30);
+      const score = Math.round(sT * 0.25 + sH * 0.20 + sL * 0.30 + sM * 0.25);
+
+      let grade, label;
+      if (score >= 90)      { grade = 'A+'; label = 'Excellent 🌟'; }
+      else if (score >= 80) { grade = 'A'; label = 'Very Good 🌿'; }
+      else if (score >= 70) { grade = 'B+'; label = 'Good 🍀'; }
+      else if (score >= 60) { grade = 'B'; label = 'Fair 🌱'; }
+      else if (score >= 45) { grade = 'C'; label = 'Needs Attention ⚠️'; }
+      else                  { grade = 'D'; label = 'Critical 🚨'; }
+
+      return { score, grade, label, breakdown: { temperature: Math.round(sT*10)/10, humidity: Math.round(sH*10)/10, light: Math.round(sL*10)/10, moisture: Math.round(sM*10)/10 } };
+    }
+
+    /* ── Chart Setup ────────────────────────────────────────────── */
+    const MAX_POINTS = 30;
+    const chartLabels = Array.from({ length: MAX_POINTS }, (_, i) => '');
+    const tempHistory = Array(MAX_POINTS).fill(28.4);
+    const humHistory  = Array(MAX_POINTS).fill(63);
+    const lightHistory = Array(MAX_POINTS).fill(742);
+    const moistHistory = Array(MAX_POINTS).fill(58);
+
+    // Trend Chart — Temp & Humidity
+    const ctx1 = document.getElementById('simTrendChart').getContext('2d');
+    const simTrendChart = new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: chartLabels,
+        datasets: [
+          {
+            label: 'Temperature (°C)',
+            data: tempHistory,
+            borderColor: '#f87171',
+            backgroundColor: 'rgba(248,113,113,0.08)',
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#f87171',
+            tension: 0.42,
+            fill: true,
+            yAxisID: 'yTemp',
+          },
+          {
+            label: 'Humidity (%)',
+            data: humHistory,
+            borderColor: '#60a5fa',
+            backgroundColor: 'rgba(96,165,250,0.07)',
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#60a5fa',
+            tension: 0.42,
+            fill: true,
+            yAxisID: 'yHum',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 400 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: 'rgba(8,15,11,0.92)',
+          borderColor: 'rgba(74,222,128,0.2)',
+          borderWidth: 1,
+          titleColor: '#e8f5ee',
+          bodyColor: '#7aab8a',
+          padding: 10,
+        }},
+        scales: {
+          x: {
+            display: false,
+          },
+          yTemp: {
+            type: 'linear', position: 'left',
+            ticks: { color: '#f87171', font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.04)' },
+            min: 0, max: 55,
+          },
+          yHum: {
+            type: 'linear', position: 'right',
+            ticks: { color: '#60a5fa', font: { size: 10 } },
+            grid:  { display: false },
+            min: 0, max: 105,
+          }
+        }
+      }
+    });
+
+    // Light & Moisture Chart
+    const ctx2 = document.getElementById('simLightMoistChart').getContext('2d');
+    const simLightMoistChart = new Chart(ctx2, {
+      type: 'line',
+      data: {
+        labels: chartLabels,
+        datasets: [
+          {
+            label: 'Light (lx)',
+            data: lightHistory,
+            borderColor: '#fbbf24',
+            backgroundColor: 'rgba(251,191,36,0.08)',
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#fbbf24',
+            tension: 0.42,
+            fill: true,
+            yAxisID: 'yLight',
+          },
+          {
+            label: 'Moisture (%)',
+            data: moistHistory,
+            borderColor: '#a78bfa',
+            backgroundColor: 'rgba(167,139,250,0.07)',
+            borderWidth: 2.5,
+            pointRadius: 0,
+            pointHoverRadius: 5,
+            pointHoverBackgroundColor: '#a78bfa',
+            tension: 0.42,
+            fill: true,
+            yAxisID: 'yMoist',
+          }
+        ]
+      },
+      options: {
+        responsive: true,
+        animation: { duration: 400 },
+        interaction: { mode: 'index', intersect: false },
+        plugins: { legend: { display: false }, tooltip: {
+          backgroundColor: 'rgba(8,15,11,0.92)',
+          borderColor: 'rgba(251,191,36,0.2)',
+          borderWidth: 1,
+          titleColor: '#e8f5ee',
+          bodyColor: '#7aab8a',
+          padding: 10,
+        }},
+        scales: {
+          x: {
+            display: false,
+          },
+          yLight: {
+            type: 'linear', position: 'left',
+            ticks: { color: '#fbbf24', font: { size: 10 } },
+            grid:  { color: 'rgba(255,255,255,0.04)' },
+            min: 0, max: 1800,
+          },
+          yMoist: {
+            type: 'linear', position: 'right',
+            ticks: { color: '#a78bfa', font: { size: 10 } },
+            grid:  { display: false },
+            min: 0, max: 105,
+          }
+        }
+      }
+    });
+
+    /* ── Status Badge Helpers ───────────────────────────────────── */
+    function tempStatusBadge(val) {
+      if (val >= 20 && val <= 30) return { text: '✔ Optimal Range', cls: 'status-ok' };
+      if (val >= 15 && val <= 35) return { text: '⚠ Acceptable', cls: 'status-warn' };
+      return { text: '✘ Out of Range', cls: 'status-err' };
+    }
+    function humStatusBadge(val) {
+      if (val >= 50 && val <= 70) return { text: '✔ Well Hydrated', cls: 'status-ok' };
+      if (val >= 35 && val <= 80) return { text: '⚠ Acceptable', cls: 'status-warn' };
+      return { text: '✘ Out of Range', cls: 'status-err' };
+    }
+    function lightStatusBadge(val) {
+      if (val >= 500 && val <= 1500) return { text: '✔ Good Light', cls: 'status-ok' };
+      if (val >= 200 && val <= 1750) return { text: '⚠ Slightly Off', cls: 'status-warn' };
+      return { text: '✘ Poor Light', cls: 'status-err' };
+    }
+    function moistStatusBadge(val) {
+      if (val >= 40 && val <= 70) return { text: '✔ Moist & Healthy', cls: 'status-ok' };
+      if (val >= 25 && val <= 85) return { text: '⚠ Acceptable', cls: 'status-warn' };
+      return { text: '✘ Critical', cls: 'status-err' };
+    }
+    function evapStatusBadge(val) {
+      if (val <= 4) return { text: '✔ Low Evaporation', cls: 'status-ok' };
+      if (val <= 7) return { text: '⚠ Moderate', cls: 'status-warn' };
+      return { text: '✘ High Evaporation', cls: 'status-err' };
+    }
+    function waterStatusBadge(val) {
+      if (val <= 250) return { text: '✔ Normal Need', cls: 'status-ok' };
+      if (val <= 380) return { text: '⚠ Moderate Need', cls: 'status-warn' };
+      return { text: '✘ High Need', cls: 'status-err' };
+    }
+
+    function setStatus(el, badge) {
+      el.textContent = badge.text;
+      el.className = 'card-status ' + badge.cls;
+    }
+
+    function setChipBadge(el, badge) {
+      const label = badge.text.replace(/^[✔⚠✘]\s*/, '');
+      el.textContent = label;
+      el.className = 'hs-chip-badge ' + badge.cls;
+    }
+
+    /* ── Stream Log ─────────────────────────────────────────────── */
+    const logContainer = document.getElementById('stream-log-entries');
+    let logCount = 0;
+
+    function addLogEntry(temp, hum, light, moist, source) {
+      logCount++;
+      const now = new Date();
+      const ts = `${String(now.getHours()).padStart(2,'0')}:${String(now.getMinutes()).padStart(2,'0')}:${String(now.getSeconds()).padStart(2,'0')}`;
+      const entry = document.createElement('div');
+      entry.className = 'log-entry';
+      entry.innerHTML = `<span class="log-time">[${ts}]</span><span class="log-arrow">→</span><span class="log-src">${source}</span><span class="log-pipe">|</span>T:<span style="color:#f87171">${temp}°C</span> H:<span style="color:#60a5fa">${hum}%</span> L:<span style="color:#fbbf24">${light}lx</span> M:<span style="color:#a78bfa">${moist}%</span>`;
+      logContainer.prepend(entry);
+      // Keep max 50 entries
+      while (logContainer.children.length > 50) {
+        logContainer.removeChild(logContainer.lastChild);
+      }
+    }
+
+    /* ── Terminal Live Line Update ──────────────────────────────── */
+    function updateTerminalLine(temp, hum, light, moist, health, source) {
+      const liveLine = document.getElementById('terminal-live-line');
+      const ts = new Date().toLocaleTimeString();
+      liveLine.innerHTML = `<span class="t-prompt">&gt;&gt;&gt;</span> <span class="t-func">${source}</span>(<span class="t-number">T=${temp}</span>, <span class="t-number">H=${hum}</span>, <span class="t-number">L=${light}</span>, <span class="t-number">M=${moist}</span>) <span class="t-operator">→</span> <span class="t-string">health=${health}</span> <span class="t-dim">  @ ${ts}</span>`;
+    }
+
+    /* ═══════════════════════════════════════════════════════════════
+       MAIN UPDATE LOOP — Fires on every slider change
+       ═══════════════════════════════════════════════════════════════ */
+
+    const sliderTemp  = document.getElementById('sim-temp');
+    const sliderHum   = document.getElementById('sim-hum');
+    const sliderLight = document.getElementById('sim-light');
+    const sliderMoist = document.getElementById('sim-moist');
+
+    async function updateSimulation() {
+      const temp     = parseFloat(sliderTemp.value);
+      const hum      = parseInt(sliderHum.value);
+      const light    = parseInt(sliderLight.value);
+      const moisture = parseInt(sliderMoist.value);
+
+      // Update slider value labels
+      document.getElementById('sim-temp-val').textContent  = temp.toFixed(1) + ' °C';
+      document.getElementById('sim-hum-val').textContent   = hum + ' %';
+      document.getElementById('sim-light-val').textContent = light + ' lx';
+      document.getElementById('sim-moist-val').textContent = moisture + ' %';
+
+      let evapIdx, waterReq, health, source;
+
+      if (usePythonBackend) {
+        // ── Use Python Flask API ──
+        try {
+          const res = await fetch(`${PYTHON_API}?temperature=${temp}&humidity=${hum}&light=${light}&moisture=${moisture}`);
+          const data = await res.json();
+          evapIdx  = data.derived.evaporation_index;
+          waterReq = data.derived.water_requirement;
+          health   = data.health;
+          source   = 'Python API';
+        } catch (e) {
+          // Fallback to JS if fetch fails
+          evapIdx  = jsComputeEvapIndex(temp, hum);
+          waterReq = jsComputeWaterReq(moisture, evapIdx);
+          health   = jsComputeHealth(temp, hum, light, moisture);
+          source   = 'JS Fallback';
+        }
+      } else {
+        // ── JS-Only Computation ──
+        evapIdx  = jsComputeEvapIndex(temp, hum);
+        waterReq = jsComputeWaterReq(moisture, evapIdx);
+        health   = jsComputeHealth(temp, hum, light, moisture);
+        source   = 'JS Engine';
+      }
+
+      // ─── Update Sensor Cards ───
+      document.getElementById('temp-val').textContent = temp.toFixed(1);
+      document.getElementById('temp-gauge').style.width = Math.min(100, (temp / 50) * 100) + '%';
+      setStatus(document.getElementById('temp-status'), tempStatusBadge(temp));
+
+      document.getElementById('hum-val').textContent = hum;
+      document.getElementById('hum-gauge').style.width = hum + '%';
+      setStatus(document.getElementById('hum-status'), humStatusBadge(hum));
+
+      document.getElementById('light-val').textContent = light;
+      document.getElementById('light-gauge').style.width = Math.min(100, (light / 1750) * 100) + '%';
+      setStatus(document.getElementById('light-status'), lightStatusBadge(light));
+
+      document.getElementById('moisture-val').textContent = moisture;
+      document.getElementById('moisture-gauge').style.width = moisture + '%';
+      setStatus(document.getElementById('moisture-status'), moistStatusBadge(moisture));
+
+      // ─── Update Computed Metrics ───
+      document.getElementById('evap-val').textContent = evapIdx;
+      document.getElementById('evap-gauge').style.width = Math.min(100, (evapIdx / 12) * 100) + '%';
+      setStatus(document.getElementById('evap-status'), evapStatusBadge(evapIdx));
+
+      document.getElementById('water-val').textContent = waterReq;
+      document.getElementById('water-gauge').style.width = Math.min(100, (waterReq / 500) * 100) + '%';
+      setStatus(document.getElementById('water-status'), waterStatusBadge(waterReq));
+
+      // ─── Update Health Score ───
+      const score = health.score;
+      const r = 90, circ = 2 * Math.PI * r;
+      const offset = circ * (1 - score / 100);
+      document.getElementById('hsFill').style.strokeDasharray  = circ;
+      document.getElementById('hsFill').style.strokeDashoffset = offset;
+      document.getElementById('hs-score-num').textContent = score;
+      document.getElementById('hs-grade').textContent = 'Grade ' + health.grade;
+      document.getElementById('hs-title').textContent = health.label;
+
+      // Update description
+      let desc = '';
+      if (score >= 80) desc = 'All parameters are in excellent range. Your plant is thriving! 🌱';
+      else if (score >= 60) desc = 'Most parameters look good. Minor adjustments could improve the score.';
+      else if (score >= 45) desc = 'Some parameters need attention. Check the metrics breakdown below.';
+      else desc = 'Critical conditions detected! Immediate action needed to save your plant. 🚨';
+      document.getElementById('hs-desc').textContent = desc;
+
+      // Health metric chips
+      document.getElementById('hs-temp-val').textContent  = temp.toFixed(1) + ' °C';
+      document.getElementById('hs-hum-val').textContent   = hum + ' %';
+      document.getElementById('hs-light-val').textContent = light + ' lx';
+      document.getElementById('hs-moist-val').textContent = moisture + ' %';
+      document.getElementById('hs-evap-val').textContent  = evapIdx + ' mm/d';
+      document.getElementById('hs-water-val').textContent = waterReq + ' mL/d';
+
+      setChipBadge(document.getElementById('hs-temp-badge'),  tempStatusBadge(temp));
+      setChipBadge(document.getElementById('hs-hum-badge'),   humStatusBadge(hum));
+      setChipBadge(document.getElementById('hs-light-badge'), lightStatusBadge(light));
+      setChipBadge(document.getElementById('hs-moist-badge'), moistStatusBadge(moisture));
+      setChipBadge(document.getElementById('hs-evap-badge'),  evapStatusBadge(evapIdx));
+      setChipBadge(document.getElementById('hs-water-badge'), waterStatusBadge(waterReq));
+
+      // ─── Update Charts ───
+      tempHistory.push(temp);
+      tempHistory.shift();
+      humHistory.push(hum);
+      humHistory.shift();
+      lightHistory.push(light);
+      lightHistory.shift();
+      moistHistory.push(moisture);
+      moistHistory.shift();
+
+      simTrendChart.update();
+      simLightMoistChart.update();
+
+      // ─── Log & Terminal ───
+      addLogEntry(temp.toFixed(1), hum, light, moisture, source);
+      updateTerminalLine(temp.toFixed(1), hum, light, moisture, score, source);
+    }
+
+    // Attach slider events (instant update, no submit button)
+    sliderTemp.addEventListener('input', updateSimulation);
+    sliderHum.addEventListener('input', updateSimulation);
+    sliderLight.addEventListener('input', updateSimulation);
+    sliderMoist.addEventListener('input', updateSimulation);
+
+    // Initial health score gauge
+    (function () {
+      const score = 78;
+      const r = 90, circ = 2 * Math.PI * r;
+      const offset = circ * (1 - score / 100);
+      document.getElementById('hsFill').style.strokeDasharray  = circ;
+      document.getElementById('hsFill').style.strokeDashoffset = offset;
+    })();
+  </script>
+</body>
+</html>

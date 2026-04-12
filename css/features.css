@@ -160,6 +160,20 @@
       color: var(--green-400);
     }
 
+    .nav-links .nav-sim-btn {
+      background: linear-gradient(135deg, rgba(251, 146, 60, 0.15), rgba(251, 191, 36, 0.10));
+      border: 1px solid rgba(251, 146, 60, 0.30);
+      color: #fb923c;
+      font-weight: 600;
+    }
+    .nav-links .nav-sim-btn:hover {
+      background: linear-gradient(135deg, rgba(251, 146, 60, 0.25), rgba(251, 191, 36, 0.18));
+      border-color: rgba(251, 146, 60, 0.50);
+      color: #fbbf24;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(251, 146, 60, 0.15);
+    }
+
     /* ─── Header ───────────────────────────────────────────────── */
     .header {
       text-align: center;
