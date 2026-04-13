@@ -294,49 +294,8 @@
       </div>
     </div>
 
-    <!-- PYTHON CODE DISPLAY -->
-    <div class="section-label fade-in"><h2>Python Backend — Live Code</h2></div>
-    <div class="python-terminal fade-in">
-      <div class="terminal-bar">
-        <div class="terminal-dot dot-red"></div>
-        <div class="terminal-dot dot-yellow"></div>
-        <div class="terminal-dot dot-green"></div>
-        <div class="terminal-title">simulator_engine.py — Python 3.12 · Flask Server</div>
-      </div>
-      <div class="terminal-body">
-        <span class="terminal-line"><span class="t-comment"># PythoSense — Arduino Sensor Simulator Engine</span></span>
-        <span class="terminal-line"><span class="t-comment"># python/simulator_engine.py</span></span>
-        <span class="terminal-line"></span>
-        <span class="terminal-line"><span class="t-keyword">from</span> <span class="t-class">flask</span> <span class="t-keyword">import</span> Flask, jsonify, request</span>
-        <span class="terminal-line"><span class="t-keyword">import</span> <span class="t-class">math</span>, <span class="t-class">random</span>, <span class="t-class">time</span></span>
-        <span class="terminal-line"></span>
-        <span class="terminal-line"><span class="t-keyword">def</span> <span class="t-func">compute_evaporation_index</span>(temperature, humidity):</span>
-        <span class="terminal-line">    <span class="t-comment">"""Simplified Penman–Monteith ET₀ approximation"""</span></span>
-        <span class="terminal-line">    svp <span class="t-operator">=</span> <span class="t-number">0.6108</span> <span class="t-operator">*</span> math.<span class="t-func">exp</span>((<span class="t-number">17.27</span> <span class="t-operator">*</span> temperature) <span class="t-operator">/</span> (temperature <span class="t-operator">+</span> <span class="t-number">237.3</span>))</span>
-        <span class="terminal-line">    avp <span class="t-operator">=</span> svp <span class="t-operator">*</span> (humidity <span class="t-operator">/</span> <span class="t-number">100.0</span>)</span>
-        <span class="terminal-line">    vpd <span class="t-operator">=</span> svp <span class="t-operator">-</span> avp</span>
-        <span class="terminal-line">    et0 <span class="t-operator">=</span> <span class="t-number">0.0023</span> <span class="t-operator">*</span> (temperature <span class="t-operator">+</span> <span class="t-number">17.8</span>) <span class="t-operator">*</span> math.<span class="t-func">sqrt</span>(<span class="t-func">max</span>(vpd <span class="t-operator">*</span> <span class="t-number">10</span>, <span class="t-number">0.01</span>)) <span class="t-operator">*</span> <span class="t-number">2.5</span></span>
-        <span class="terminal-line">    <span class="t-keyword">return</span> <span class="t-func">round</span>(<span class="t-func">max</span>(<span class="t-number">0</span>, <span class="t-func">min</span>(<span class="t-number">12</span>, et0)), <span class="t-number">1</span>)</span>
-        <span class="terminal-line"></span>
-        <span class="terminal-line"><span class="t-keyword">def</span> <span class="t-func">compute_health_score</span>(temp, hum, light, moisture):</span>
-        <span class="terminal-line">    <span class="t-comment">"""Weighted bell-curve scoring system"""</span></span>
-        <span class="terminal-line">    <span class="t-keyword">def</span> <span class="t-func">bell</span>(val, lo, hi, falloff):</span>
-        <span class="terminal-line">        <span class="t-keyword">if</span> lo <span class="t-operator">&lt;=</span> val <span class="t-operator">&lt;=</span> hi: <span class="t-keyword">return</span> <span class="t-number">100.0</span></span>
-        <span class="terminal-line">        d <span class="t-operator">=</span> (lo<span class="t-operator">-</span>val) <span class="t-keyword">if</span> val<span class="t-operator">&lt;</span>lo <span class="t-keyword">else</span> (val<span class="t-operator">-</span>hi)</span>
-        <span class="terminal-line">        <span class="t-keyword">return</span> <span class="t-func">max</span>(<span class="t-number">0</span>, <span class="t-number">100</span> <span class="t-operator">-</span> (d<span class="t-operator">/</span>falloff)<span class="t-operator">**</span><span class="t-number">2</span> <span class="t-operator">*</span> <span class="t-number">100</span>)</span>
-        <span class="terminal-line">    score <span class="t-operator">=</span> bell(temp,<span class="t-number">20</span>,<span class="t-number">30</span>,<span class="t-number">15</span>)<span class="t-operator">*</span><span class="t-number">.25</span> <span class="t-operator">+</span> bell(hum,<span class="t-number">50</span>,<span class="t-number">70</span>,<span class="t-number">25</span>)<span class="t-operator">*</span><span class="t-number">.20</span></span>
-        <span class="terminal-line">    score <span class="t-operator">+=</span> bell(light,<span class="t-number">500</span>,<span class="t-number">1500</span>,<span class="t-number">400</span>)<span class="t-operator">*</span><span class="t-number">.30</span> <span class="t-operator">+</span> bell(moisture,<span class="t-number">40</span>,<span class="t-number">70</span>,<span class="t-number">30</span>)<span class="t-operator">*</span><span class="t-number">.25</span></span>
-        <span class="terminal-line">    <span class="t-keyword">return</span> <span class="t-func">round</span>(score)</span>
-        <span class="terminal-line"></span>
-        <span class="terminal-line t-dim">═══════════════════════════════════════════════════════════</span>
-        <span class="terminal-line t-output">  🌿 PythoSense Simulator Engine — Python Backend</span>
-        <span class="terminal-line t-output">  📡 API running at <span class="t-string">http://localhost:5050/api/simulate</span></span>
-        <span class="terminal-line t-output">  🔧 Press Ctrl+C to stop</span>
-        <span class="terminal-line t-dim">═══════════════════════════════════════════════════════════</span>
-        <span class="terminal-line"></span>
-        <span class="terminal-line" id="terminal-live-line"><span class="t-prompt">&gt;&gt;&gt;</span> <span class="t-dim">Waiting for simulation data...</span></span>
-      </div>
-    </div>
+    <!-- PYTHON CODE DISPLAY REMOVED -->
+    <div id="terminal-live-line" style="display: none;"></div>
 
     <!-- DATA STREAM LOG -->
     <div class="section-label fade-in"><h2>Data Stream Log</h2></div>
