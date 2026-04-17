@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>PythoSense Cloud Uplink</title>
+  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
+  <style>
+    body { background: #080f0b; color: #e8f5ee; font-family: 'Courier New', Courier, monospace; text-align: center; padding: 50px; margin: 0; }
+    h1 { color: #4ade80; margin-bottom: 5px; font-family: 'Segoe UI', sans-serif;}
+    p { color: #94a3b8; font-family: 'Segoe UI', sans-serif; margin-bottom: 40px; }
+    button { background: #4ade80; color: #080f0b; border: none; padding: 15px 30px; font-size: 1.2rem; cursor: pointer; border-radius: 8px; font-weight: bold; transition: all 0.2s ease; }
+    button:hover { background: #22c55e; transform: translateY(-2px); box-shadow: 0 4px 15px rgba(74, 222, 128, 0.4);}
+    #log { margin-top: 30px; padding: 20px; background: rgba(255,255,255,0.05); text-align: left; height: 350px; overflow-y: scroll; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1); color: #60a5fa;}
+  </style>
+</head>
+<body>
+  <h1>🌐 PythoSense Server Uplink</h1>
+  <p>Connect your ESP32 via USB and click to securely broadcast its live data to Netlify directly from your browser.</p>
+  
+  <button id="btnConnect">Connect USB Serial Port</button>
+  
+  <div id="log" style="font-size: 14px; line-height: 1.5;">Waiting for hardware connection...</div>
+
+  <script>
+    const btn = document.getElementById('btnConnect');
+    const logEl = document.getElementById('log');
+    let port, inputDone, inputStream;
+    
+    // Setup MQTT connection directly from Browser to EMQX public broker
+    const clientId = 'pythosense_web_uplink_' + Math.random().toString(16).substr(2, 8);
+    const client = mqtt.connect('wss://broker.emqx.io:8084/mqtt', { clientId });
+    let isConnected = false;
+    
+    client.on('connect', () => {
+      isConnected = true;
+      log("🟢 Web socket secure bridge connected to EMQX Cloud Registry.");
+    });
+
+    function log(msg) {
+      logEl.innerHTML += `<div><span style="color:#94a3b8">[${new Date().toLocaleTimeString()}]</span> ${msg}</div>`;
+      logEl.scrollTop = logEl.scrollHeight;
+    }
+
+    // Derived agricultural logic ported from Python
+    function compute_evaporation_index(temperature, humidity) {
+       let svp = 0.6108 * Math.exp((17.27 * temperature) / (temperature + 237.3));
+       let avp = svp * (humidity / 100.0);
+       let vpd = svp - avp;
+       let et0 = 0.0023 * (temperature + 17.8) * Math.sqrt(Math.max(vpd * 10, 0.01)) * 2.5;
+       return parseFloat(Math.max(0, Math.min(12, et0)).toFixed(1));
+    }
+    
+    function compute_water_requirement(moisture, evap_index) {
+       let deficit = 1.0 - (moisture / 100.0);
+       let water_ml = (deficit * 300) + (evap_index * 20);
+       return Math.round(Math.max(0, Math.min(500, water_ml)));
+    }
+    
+    function bell_score(value, low, high, falloff) {
+       if (value >= low && value <= high) return 100.0;
+       if (value < low) return Math.max(0, 100 - Math.pow((low - value) / falloff, 2) * 100);
+       return Math.max(0, 100 - Math.pow((value - high) / falloff, 2) * 100);
+    }
+    
+    function compute_health_score(temperature, humidity, light, moisture) {
+       let s_temp = bell_score(temperature, 20, 30, 15);
+       let s_hum = bell_score(humidity, 50, 70, 25);
+       let s_light = bell_score(light, 500, 1500, 400);
+       let s_moisture = bell_score(moisture, 40, 70, 30);
+       let score = Math.round(s_temp * 0.25 + s_hum * 0.20 + s_light * 0.30 + s_moisture * 0.25);
+       let grade = "D", label = "Critical 🚨";
+       if (score >= 90) { grade = "A+"; label = "Excellent 🌟"; }
+       else if (score >= 80) { grade = "A"; label = "Very Good 🌿"; }
+       else if (score >= 70) { grade = "B+"; label = "Good 🍀"; }
+       else if (score >= 60) { grade = "B"; label = "Fair 🌱"; }
+       else if (score >= 45) { grade = "C"; label = "Needs Attention ⚠️"; }
+       return { score, grade, label };
+    }
+
+    // Connect to Web Serial API
+    btn.addEventListener('click', async () => {
+      try {
+        if (!navigator.serial) {
+          alert("Your browser does not support the Web Serial API. Please use Google Chrome or Microsoft Edge.");
+          return;
+        }
+
+        port = await navigator.serial.requestPort();
+        await port.open({ baudRate: 115200 });
+        log("🔌 Hardware detected. USB Port Opened successfully.");
+        btn.style.display = 'none';
+
+        if (isConnected) client.publish('madhur/pythosense/status', JSON.stringify({ status: 'connected', port: 'WebSerial API' }));
+
+        const decoder = new TextDecoderStream();
+        inputDone = port.readable.pipeTo(decoder.writable);
+        inputStream = decoder.readable;
+
+        const reader = inputStream.getReader();
+        let buffer = "";
+
+        while (true) {
+          const { value, done } = await reader.read();
+          if (done) break;
+          
+          buffer += value;
+          let lines = buffer.split('\n');
+          buffer = lines.pop(); // keep raw incomplete fragment for next chunk
+          
+          for (let line of lines) {
+            line = line.trim();
+            if (line.startsWith("T:")) {
+              try {
+                let parts = {};
+                line.split(',').forEach(kv => {
+                  let [k,v] = kv.split(':');
+                  if (k && v) parts[k] = parseFloat(v);
+                });
+                
+                let temp = parts['T'] || 0;
+                let hum = parts['H'] || 0;
+                let spct = parts['SP'] || 0;
+                let sraw = parts['SR'] || 0;
+                let lpct = parts['LP'] || 0;
+                
+                let flux = lpct * 17.5;
+                if(lpct === 0 && parts['LR']) flux = Math.min(Math.max(parts['LR']/2, 0), 1750);
+                
+                let evap = compute_evaporation_index(temp, hum);
+                let water = compute_water_requirement(spct, evap);
+                let health = compute_health_score(temp, hum, flux, spct);
+                
+                let payload = {
+                  raw_line: line,
+                  temperature: temp,
+                  humidity: hum,
+                  soil_pct: spct,
+                  soil_raw: sraw,
+                  light_lux: Math.round(flux),
+                  evap,
+                  water,
+                  health
+                };
+                
+                if (isConnected) {
+                  client.publish('madhur/pythosense/sensor', JSON.stringify(payload), {qos: 0});
+                  log(`<span style="color:#a78bfa">UPLINK SUCCESS:</span> ${line}`);
+                }
+              } catch (e) {
+                log(`<span style="color:#f87171">Parse Error:</span> ${e.message}`);
+              }
+            } else if (line.length > 0) {
+                if (isConnected) {
+                  client.publish('madhur/pythosense/log', JSON.stringify({log: `[RAW] ${line}`}));
+                }
+            }
+          }
+        }
+      } catch (err) {
+        log(`<span style="color:#f87171">Connection Error:</span> ` + err.message);
+      }
+    });
+  </script>
+</body>
+</html>

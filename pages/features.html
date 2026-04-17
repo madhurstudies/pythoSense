@@ -41,6 +41,24 @@
 
     <div class="feature-box fade-in">
       <div class="fb-header">
+        <div class="fb-icon">🔌</div>
+        <div class="fb-title">Hardware Pin Configuration</div>
+      </div>
+      <div class="fb-content">
+        <p>To successfully stream data into the PythoSense dashboard, your ESP32 must be wired to perfectly match the firmware bindings below.</p>
+        <ul class="fb-list">
+          <li>🌡️ DHT11 Sensor <span><strong>Data Pin:</strong> GPIO 23</span></li>
+          <li>💡 LDR Light Sensor <span><strong>Analog Pin:</strong> D35</span></li>
+          <li>🪱 Capacitive Moisture <span><strong>Analog Pin:</strong> D32</span></li>
+        </ul>
+        <div style="background: rgba(248,113,113,0.1); border: 1px solid rgba(248,113,113,0.3); border-radius: 8px; padding: 12px; margin-top: 15px; font-size: 0.9rem; color: #f87171;">
+          <strong>Power Warning:</strong> Ensure DHT11 is powered via 3.3V, and both analog sensors share a common Ground with the ESP32 to prevent noise.
+        </div>
+      </div>
+    </div>
+
+    <div class="feature-box fade-in">
+      <div class="fb-header">
         <div class="fb-icon">⚙️</div>
         <div class="fb-title">DHT11 Sensor</div>
       </div>
