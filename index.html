@@ -9,8 +9,6 @@
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;600&display=swap" rel="stylesheet" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.5.4/socket.io.js"></script>
-  <script src="https://unpkg.com/mqtt/dist/mqtt.min.js"></script>
 
   <link rel="stylesheet" href="css/index.css" />
 </head>
@@ -28,18 +26,12 @@
     <ul class="nav-links">
       <li><a href="index.html" class="active" id="nav-dashboard">Dashboard</a></li>
       <li><a href="pages/features.html" id="nav-features">Features</a></li>
-      <li><a href="sentinel.html" id="nav-sentinel">Sentinel</a></li>
       <li><a href="#history"   id="nav-history">History</a></li>
       <li><a href="#device"    id="nav-device">Device</a></li>
       <li><a href="simulator.html" class="nav-sim-btn" id="nav-simulator">⚡ Simulator</a></li>
     </ul>
-    <div style="display:flex; gap: 10px; align-items:center;">
-      <button id="btn-reconnect" style="background:rgba(255,255,255,0.1); border:1px solid rgba(255,255,255,0.2); color:#fff; padding:6px 12px; border-radius:12px; cursor:pointer; font-family:var(--font-sans); font-size:0.85rem; transition:0.2s;">
-        🔄 Reconnect
-      </button>
-      <div class="nav-badge" id="conn-badge" style="background:rgba(248,113,113,0.12);border-color:rgba(248,113,113,0.25);color:#f87171;">
-        <span class="pulse-dot" id="conn-dot" style="background:#f87171;box-shadow:0 0 0 0 rgba(248,113,113,0.6);animation:none"></span><span id="conn-text">Disconnected</span>
-      </div>
+    <div class="nav-badge">
+      <span class="pulse-dot"></span>Live Feed
     </div>
   </nav>
 
@@ -62,10 +54,10 @@
       <!-- Temperature -->
       <div class="sensor-card card-temp fade-in">
         <div class="card-icon-wrap">🌡️</div>
-        <div class="card-label">Ambient Temperature</div>
-        <div class="card-sensor-id">Sensor: DHT11 · CH-01</div>
+        <div class="card-label">Soil Temperature</div>
+        <div class="card-sensor-id">Sensor: DHT22 · CH-01</div>
         <div class="card-value">
-          <span class="count-anim" id="temp-val">--</span><span class="card-unit">°C</span>
+          <span class="count-anim" id="temp-val">28.4</span><span class="card-unit">°C</span>
         </div>
         <span class="card-status status-ok">✔ Optimal Range</span>
         <div class="gauge-track"><div class="gauge-fill" id="temp-gauge" style="width: 56%"></div></div>
@@ -74,10 +66,10 @@
       <!-- Humidity -->
       <div class="sensor-card card-hum fade-in">
         <div class="card-icon-wrap">💧</div>
-        <div class="card-label">Ambient Humidity</div>
-        <div class="card-sensor-id">Sensor: DHT11 · CH-02</div>
+        <div class="card-label">Soil Humidity</div>
+        <div class="card-sensor-id">Sensor: DHT22 · CH-02</div>
         <div class="card-value">
-          <span class="count-anim" id="hum-val">--</span><span class="card-unit">%</span>
+          <span class="count-anim" id="hum-val">63</span><span class="card-unit">%</span>
         </div>
         <span class="card-status status-ok">✔ Well Hydrated</span>
         <div class="gauge-track"><div class="gauge-fill" id="hum-gauge" style="width: 63%"></div></div>
@@ -89,7 +81,7 @@
         <div class="card-label">Light Intensity</div>
         <div class="card-sensor-id">Sensor: LDR · CH-03</div>
         <div class="card-value">
-          <span class="count-anim" id="light-val">--</span><span class="card-unit">lx</span>
+          <span class="count-anim" id="light-val">742</span><span class="card-unit">lx</span>
         </div>
         <span class="card-status status-warn">⚠ Slightly Low</span>
         <div class="gauge-track"><div class="gauge-fill" id="light-gauge" style="width: 42%"></div></div>
@@ -107,7 +99,7 @@
         <div class="card-label">Evaporation Index</div>
         <div class="card-sensor-id">Derived · Temp + Humidity (ET₀)</div>
         <div class="card-value">
-          <span class="count-anim" id="evap-val">--</span><span class="card-unit">mm/d</span>
+          <span class="count-anim" id="evap-val">3.8</span><span class="card-unit">mm/d</span>
         </div>
         <span class="card-status status-ok">✔ Low Evaporation</span>
         <div class="gauge-track"><div class="gauge-fill" id="evap-gauge" style="width:32%"></div></div>
@@ -119,7 +111,7 @@
         <div class="card-label">Water Requirement</div>
         <div class="card-sensor-id">Derived · Moisture + Evap Index</div>
         <div class="card-value">
-          <span class="count-anim" id="water-val">--</span><span class="card-unit">mL/d</span>
+          <span class="count-anim" id="water-val">210</span><span class="card-unit">mL/d</span>
         </div>
         <span class="card-status status-ok">✔ Normal Need</span>
         <div class="gauge-track"><div class="gauge-fill" id="water-gauge" style="width:42%"></div></div>
@@ -131,11 +123,10 @@
         <div class="card-label">Soil Moisture</div>
         <div class="card-sensor-id">Sensor · Capacitive · CH-04</div>
         <div class="card-value">
-          <span class="count-anim" id="moisture-val">--</span><span class="card-unit">%</span>
+          <span class="count-anim" id="moisture-val">58</span><span class="card-unit">%</span>
         </div>
-        <span class="card-status status-ok" id="moisture-status">✔ Active</span>
+        <span class="card-status status-ok">✔ Moist &amp; Healthy</span>
         <div class="gauge-track"><div class="gauge-fill" id="moisture-gauge" style="width:58%"></div></div>
-        <div style="font-size:0.75rem; color:var(--text-muted); margin-top:8px;">RAW ADC: <span id="moisture-raw-val" style="color:#a78bfa">--</span></div>
       </div>
 
     </div>
@@ -172,13 +163,12 @@
       <div class="chart-card">
         <div class="chart-header">
           <div>
-            <div class="chart-title">Environment Trend — Live Telemetry</div>
-            <div class="chart-subtitle">Real-time sampling at 100ms interval</div>
+            <div class="chart-title">Temperature & Humidity — Last 24h</div>
+            <div class="chart-subtitle">Hourly averages from DHT22 sensor</div>
           </div>
           <div class="chart-legend">
             <span class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Temp (°C)</span>
             <span class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>Humidity (%)</span>
-            <span class="legend-item"><span class="legend-dot" style="background:#a78bfa"></span>Moisture (%)</span>
           </div>
         </div>
         <canvas id="trendChart" height="220"></canvas>
@@ -235,9 +225,9 @@
           <circle class="hs-fill"  cx="100" cy="100" r="90" id="hsFill"/>
         </svg>
         <div class="hs-center">
-          <div class="hs-score-num" id="hs-score-num">--</div>
+          <div class="hs-score-num" id="hs-score-num">78</div>
           <div class="hs-score-denom">/ 100</div>
-          <div class="hs-grade" id="hs-grade">Waiting...</div>
+          <div class="hs-grade" id="hs-grade">Grade B+</div>
         </div>
       </div>
 
@@ -249,42 +239,42 @@
           <div class="hs-metric-chip">
             <div class="hs-chip-label">Temperature</div>
             <div class="hs-chip-row">
-              <span class="hs-chip-val" style="color:#f87171" id="hs-temp-val">-- °C</span>
+              <span class="hs-chip-val" style="color:#f87171">28.4 °C</span>
               <span class="hs-chip-badge status-ok">Optimal</span>
             </div>
           </div>
           <div class="hs-metric-chip">
             <div class="hs-chip-label">Humidity</div>
             <div class="hs-chip-row">
-              <span class="hs-chip-val" style="color:#60a5fa" id="hs-hum-val">-- %</span>
+              <span class="hs-chip-val" style="color:#60a5fa">63 %</span>
               <span class="hs-chip-badge status-ok">Optimal</span>
             </div>
           </div>
           <div class="hs-metric-chip">
             <div class="hs-chip-label">Light Intensity</div>
             <div class="hs-chip-row">
-              <span class="hs-chip-val" style="color:#fbbf24" id="hs-light-val">-- lx</span>
+              <span class="hs-chip-val" style="color:#fbbf24">742 lx</span>
               <span class="hs-chip-badge status-warn">Low</span>
             </div>
           </div>
           <div class="hs-metric-chip">
             <div class="hs-chip-label">Soil Moisture</div>
             <div class="hs-chip-row">
-              <span class="hs-chip-val" style="color:#a78bfa" id="hs-moist-val">-- %</span>
+              <span class="hs-chip-val" style="color:#a78bfa">58 %</span>
               <span class="hs-chip-badge status-ok">Moist</span>
             </div>
           </div>
           <div class="hs-metric-chip">
             <div class="hs-chip-label">Evaporation</div>
             <div class="hs-chip-row">
-              <span class="hs-chip-val" style="color:#fb923c" id="hs-evap-val">-- mm/d</span>
+              <span class="hs-chip-val" style="color:#fb923c">3.8 mm/d</span>
               <span class="hs-chip-badge status-ok">Low</span>
             </div>
           </div>
           <div class="hs-metric-chip">
             <div class="hs-chip-label">Water Need</div>
             <div class="hs-chip-row">
-              <span class="hs-chip-val" style="color:#22d3ee" id="hs-water-val">-- mL/d</span>
+              <span class="hs-chip-val" style="color:#22d3ee">210 mL/d</span>
               <span class="hs-chip-badge status-ok">Normal</span>
             </div>
           </div>
@@ -326,7 +316,7 @@
     <div class="device-grid fade-in">
       <div class="device-card">
         <div class="device-card-title">🔌 Sensor Modules</div>
-        <div class="device-row"><span class="device-row-label">Temperature / Humidity</span><span class="device-row-value">DHT11</span></div>
+        <div class="device-row"><span class="device-row-label">Temperature / Humidity</span><span class="device-row-value">DHT22</span></div>
         <div class="device-row"><span class="device-row-label">Protocol</span><span class="device-row-value">1-Wire Digital</span></div>
         <div class="device-row"><span class="device-row-label">Light Sensor</span><span class="device-row-value">Photoresistor (LDR)</span></div>
         <div class="device-row"><span class="device-row-label">ADC Resolution</span><span class="device-row-value">12-bit (4096 steps)</span></div>
@@ -339,29 +329,6 @@
         <div class="device-row"><span class="device-row-label">Protocol</span><span class="device-row-value">Wi-Fi / Serial</span></div>
         <div class="device-row"><span class="device-row-label">MCU Temp</span><span class="device-row-value">41 °C</span></div>
         <div class="device-row"><span class="device-row-label">Free Heap</span><span class="device-row-value">218 KB</span></div>
-      </div>
-    </div>
-
-    <!-- BACKEND STATUS MONITOR -->
-    <div class="section-label fade-in" id="backend-monitor"><h2>Backend Status Monitor</h2></div>
-    <div class="table-card fade-in" style="background:rgba(15,23,42,0.9); border:1px solid rgba(96,165,250,0.2); padding:20px; font-family: var(--font-mono); color:#94a3b8; border-radius: 20px; overflow: hidden; margin-bottom:40px;">
-      <div style="color:var(--text-primary); font-size:1.1rem; margin-bottom: 15px; font-family: var(--font-sans); display:flex; justify-content: space-between; align-items: center;">
-        <div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.4rem;">⚙️</span> Python Connection Logs</div>
-      </div>
-      <div id="backend-terminal" style="height: 150px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; scroll-behavior: smooth;">
-        <!-- Filled by JS -->
-      </div>
-    </div>
-
-    <!-- SERIAL MONITOR -->
-    <div class="section-label fade-in" id="monitor"><h2>Live Serial Monitor</h2></div>
-    <div class="table-card fade-in" style="background:rgba(10,13,11,0.9); border:1px solid rgba(74,222,128,0.2); padding:20px; font-family: var(--font-mono); color:#7aab8a; border-radius: 20px; overflow: hidden; margin-bottom:40px;">
-      <div style="color:var(--text-primary); font-size:1.1rem; margin-bottom: 15px; font-family: var(--font-sans); display:flex; justify-content: space-between; align-items: center;">
-        <div style="display:flex; align-items:center; gap:10px;"><span style="font-size:1.4rem;">📡</span> Streaming Data from Python + Arduino</div>
-        <div id="serial-port-id" style="font-size:0.85rem; color: #a78bfa; background: rgba(167,139,250,0.1); padding: 4px 12px; border-radius: 12px;">Port: Unknown</div>
-      </div>
-      <div id="serial-terminal" style="height: 250px; overflow-y: auto; display: flex; flex-direction: column; gap: 6px; font-size: 0.9rem; scroll-behavior: smooth;">
-        <!-- Filled by JS -->
       </div>
     </div>
 

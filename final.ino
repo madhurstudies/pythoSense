@@ -8,8 +8,8 @@ const int SOIL_PIN = 32;
 const int LDR_PIN  = 35; // Updated to Backup Pin D35
 
 // --- Dynamic Calibration ---
-int soilDryRaw   = 300;  
-int soilWetRaw   = 3000;  
+int soilDryRaw   = 3200;  
+int soilWetRaw   = 1200;  
 int ldrDarkRaw   = 80;    // Adjusted for D35 baseline
 int ldrBrightRaw = 2800;  
 
@@ -59,5 +59,5 @@ void loop() {
   Serial.print(",LR:"); Serial.print(lRaw);
   Serial.print(",LP:"); Serial.println(lPct);
 
-  delay(100); // Maintain 2s interval for DHT11 stability
+  delay(2000); // Maintain 2s interval for DHT11 stability
 }
