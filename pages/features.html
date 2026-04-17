@@ -36,20 +36,19 @@
   <div class="wrapper">
     <div class="header fade-in">
       <h1>Know exactly what your<br /><span>plant is feeling</span></h1>
-      <p>PythoSense reads soil temperature, humidity, and ambient light intensity from your plant using DHT11/DHT22 and
-        LDR sensors — in real-time.</p>
+      <p>PythoSense reads ambient temperature, humidity, light intensity, and soil moisture from your plant using DHT11, LDR, and Capacitive Moisture sensors — in real-time.</p>
     </div>
 
     <div class="feature-box fade-in">
       <div class="fb-header">
         <div class="fb-icon">⚙️</div>
-        <div class="fb-title">DHT11 / DHT22 Sensors</div>
+        <div class="fb-title">DHT11 Sensor</div>
       </div>
       <div class="fb-content">
         <p>The core of PythoSense relies on precision digital temperature and humidity sensors. The DHT series provides
           highly reliable, calibrated digital signal output.</p>
         <ul class="fb-list">
-          <li>🌡️ Soil Temperature <span>Maintains awareness of root comfort levels.</span></li>
+          <li>🌡️ Ambient Temperature <span>Maintains awareness of ambient climate comfort levels.</span></li>
           <li>💧 Humidity Tracking <span>Ensures the microclimate around the plant is ideal.</span></li>
         </ul>
       </div>
@@ -97,7 +96,7 @@
         <p>All data streams are fed into an intelligent weighing algorithm that produces a unified 0-100 Health Score.
           This makes monitoring your plant's status as simple as reading a single grade. The scoring model evaluates individual parameters based on their immediate impact on plant vitality:</p>
         <ul class="fb-list">
-          <li>⚖️ Weighted Distribution <span><strong>Moisture (40%)</strong>, <strong>Light (25%)</strong>, <strong>Temp (20%)</strong>, and <strong>Humidity (15%)</strong> form the base metrics.</span></li>
+          <li>⚖️ Weighted Distribution <span><strong>Moisture (50%)</strong>, <strong>Light (30%)</strong>, and <strong>Temp (20%)</strong> form the base metrics.</span></li>
           <li>🎯 Dynamic Deviation <span>Metrics are compared against ideal thresholds. Deviations outside optimal bands reduce points based on a quadratic curve (stronger penalty for severe deviations).</span></li>
           <li>📉 Stress Multipliers <span>If synergistic stress occurs (e.g., high heat + low moisture), an additional compound penalty multiplier (up to 1.5x) is applied.</span></li>
           <li>🛡️ Trailing Average <span>A statistical smoothing function is applied over the trailing 15-minute window to eliminate fleeting anomalies and provide a stable health grade.</span></li>
@@ -107,10 +106,9 @@
         <div style="background: rgba(0,0,0,0.3); border: 1px solid var(--border); border-radius: 14px; padding: 18px; margin-top: 12px; font-family: var(--font-mono); font-size: 0.9rem; line-height: 1.8; color: var(--text-primary);">
           <span style="color: var(--teal-400);">BaseScore</span> = <br>
           &nbsp;&nbsp;100 - ( <br>
-          &nbsp;&nbsp;&nbsp;&nbsp;(ΔMoisture² × 0.40) + <br>
-          &nbsp;&nbsp;&nbsp;&nbsp;(ΔLight × 0.25) + <br>
-          &nbsp;&nbsp;&nbsp;&nbsp;(ΔTemp² × 0.20) + <br>
-          &nbsp;&nbsp;&nbsp;&nbsp;(ΔHumidity × 0.15) <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(ΔMoisture² × 0.50) + <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(ΔLight × 0.30) + <br>
+          &nbsp;&nbsp;&nbsp;&nbsp;(ΔTemp² × 0.20) <br>
           &nbsp;&nbsp;)<br><br>
           <span style="color: #f87171;">Final Health Score</span> = <span style="color: var(--teal-400);">BaseScore</span> × (1 - <span style="color: var(--amber-400);">SynergisticStressMultiplier</span>)
         </div>
