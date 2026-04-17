@@ -319,9 +319,9 @@ socket.on('sensor_data', (data) => {
     moistStatus.innerHTML = '❌ FAULT / DISCONNECTED';
   } else {
     // Dynamic Software Calibration: Override ESP32 map limits entirely using JS
-    // Sensor ranges from ~300 (Dry) to ~3000 (Submerged)
+    // Standard Sensor: ~3200 (Dry) to ~1200 (Wet)
     let r = data.soil_raw;
-    let computed_pct = ((r - 300) / (3000 - 300)) * 100;
+    let computed_pct = ((r - 3200) / (1200 - 3200)) * 100;
     actual_moisture_pct = Math.round(Math.max(0, Math.min(100, computed_pct)));
     
     moistStatus.className = 'card-status status-ok';
