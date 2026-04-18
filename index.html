@@ -26,13 +26,14 @@
     <ul class="nav-links">
       <li><a href="index.html" class="active" id="nav-dashboard">Dashboard</a></li>
       <li><a href="pages/features.html" id="nav-features">Features</a></li>
-      <li><a href="#history"   id="nav-history">History</a></li>
       <li><a href="#device"    id="nav-device">Device</a></li>
       <li><a href="simulator.html" class="nav-sim-btn" id="nav-simulator">⚡ Simulator</a></li>
     </ul>
-    <div class="nav-badge">
-      <span class="pulse-dot"></span>Live Feed
+    <div class="nav-badge" id="esp32-status-badge">
+      <span class="pulse-dot" id="esp32-pulse-dot"></span>
+      <span id="esp32-status-label">Disconnected</span>
     </div>
+    <button id="reconnect-btn" class="reconnect-btn">Reconnect ESP32</button>
   </nav>
 
   <div class="wrapper">
@@ -53,26 +54,26 @@
 
       <!-- Temperature -->
       <div class="sensor-card card-temp fade-in">
-        <div class="card-icon-wrap">🌡️</div>
-        <div class="card-label">Soil Temperature</div>
-        <div class="card-sensor-id">Sensor: DHT22 · CH-01</div>
+        <div class="card-icon-wrap">❄️</div>
+        <div class="card-label">Ambient Temperature</div>
+        <div class="card-sensor-id">Sensor: DHT11 · CH-01</div>
         <div class="card-value">
-          <span class="count-anim" id="temp-val">28.4</span><span class="card-unit">°C</span>
+          <span class="count-anim" id="temp-val">25.0</span><span class="card-unit">°C</span>
         </div>
         <span class="card-status status-ok">✔ Optimal Range</span>
-        <div class="gauge-track"><div class="gauge-fill" id="temp-gauge" style="width: 56%"></div></div>
+        <div class="gauge-track"><div class="gauge-fill" id="temp-gauge" style="width: 50%"></div></div>
       </div>
 
       <!-- Humidity -->
       <div class="sensor-card card-hum fade-in">
-        <div class="card-icon-wrap">💧</div>
-        <div class="card-label">Soil Humidity</div>
-        <div class="card-sensor-id">Sensor: DHT22 · CH-02</div>
+        <div class="card-icon-wrap">☁️</div>
+        <div class="card-label">Ambient Humidity</div>
+        <div class="card-sensor-id">Sensor: DHT11 · CH-02</div>
         <div class="card-value">
-          <span class="count-anim" id="hum-val">63</span><span class="card-unit">%</span>
+          <span class="count-anim" id="hum-val">60</span><span class="card-unit">%</span>
         </div>
-        <span class="card-status status-ok">✔ Well Hydrated</span>
-        <div class="gauge-track"><div class="gauge-fill" id="hum-gauge" style="width: 63%"></div></div>
+        <span class="card-status status-ok">✔ Well Balanced</span>
+        <div class="gauge-track"><div class="gauge-fill" id="hum-gauge" style="width: 60%"></div></div>
       </div>
 
       <!-- Light -->
@@ -136,7 +137,7 @@
       <div class="info-tile">
         <div class="info-tile-label">Last Updated</div>
         <div class="info-tile-value" id="last-updated">14:57:22</div>
-        <div class="info-tile-sub">Auto-refresh every 5s</div>
+        <div class="info-tile-sub" id="refresh-hint">Live · 100 ms when connected</div>
       </div>
       <div class="info-tile">
         <div class="info-tile-label">Uptime</div>
@@ -163,12 +164,13 @@
       <div class="chart-card">
         <div class="chart-header">
           <div>
-            <div class="chart-title">Temperature & Humidity — Last 24h</div>
-            <div class="chart-subtitle">Hourly averages from DHT22 sensor</div>
+            <div class="chart-title">Temperature, Humidity & Soil Moisture — Last 24h</div>
+            <div class="chart-subtitle">Live data from ESP32 sensors (100ms updates)</div>
           </div>
           <div class="chart-legend">
             <span class="legend-item"><span class="legend-dot" style="background:#f87171"></span>Temp (°C)</span>
             <span class="legend-item"><span class="legend-dot" style="background:#60a5fa"></span>Humidity (%)</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#4ade80"></span>Soil Moisture (%)</span>
           </div>
         </div>
         <canvas id="trendChart" height="220"></canvas>
@@ -283,44 +285,17 @@
 
     </div>
 
-    <!-- HISTORY TABLE -->
-    <div class="section-label fade-in" id="history"><h2>Reading History</h2></div>
-    <div class="table-card fade-in">
-      <div class="chart-header">
-        <div>
-          <div class="chart-title">Recent Readings Log</div>
-          <div class="chart-subtitle">Last 10 data points captured by sensors</div>
-        </div>
-      </div>
-      <div class="table-wrap">
-        <table>
-          <thead>
-            <tr>
-              <th>#</th>
-              <th>Timestamp</th>
-              <th>Temperature</th>
-              <th>Humidity</th>
-              <th>Light (lx)</th>
-              <th>Status</th>
-            </tr>
-          </thead>
-          <tbody id="readings-table">
-            <!-- Populated by JS -->
-          </tbody>
-        </table>
-      </div>
-    </div>
 
     <!-- DEVICE INFO -->
     <div class="section-label fade-in" id="device"><h2>Device Info</h2></div>
     <div class="device-grid fade-in">
       <div class="device-card">
-        <div class="device-card-title">🔌 Sensor Modules</div>
-        <div class="device-row"><span class="device-row-label">Temperature / Humidity</span><span class="device-row-value">DHT22</span></div>
-        <div class="device-row"><span class="device-row-label">Protocol</span><span class="device-row-value">1-Wire Digital</span></div>
+        <div class="device-card-title">? Sensor Modules</div>
+        <div class="device-row"><span class="device-row-label">Temperature / Humidity</span><span class="device-row-value">DHT11</span></div>
+        <div class="device-row"><span class="device-row-label">Soil Moisture</span><span class="device-row-value">Capacitive Sensor</span></div>
         <div class="device-row"><span class="device-row-label">Light Sensor</span><span class="device-row-value">Photoresistor (LDR)</span></div>
-        <div class="device-row"><span class="device-row-label">ADC Resolution</span><span class="device-row-value">12-bit (4096 steps)</span></div>
-        <div class="device-row"><span class="device-row-label">Sample Rate</span><span class="device-row-value">1 Hz (every 1s)</span></div>
+        <div class="device-row"><span class="device-row-label">Protocol</span><span class="device-row-value">Digital + Analog</span></div>
+        <div class="device-row"><span class="device-row-label">Sample Rate</span><span class="device-row-value">10 Hz (100ms)</span></div>
       </div>
       <div class="device-card">
         <div class="device-card-title">🖥 Microcontroller</div>
@@ -329,6 +304,34 @@
         <div class="device-row"><span class="device-row-label">Protocol</span><span class="device-row-value">Wi-Fi / Serial</span></div>
         <div class="device-row"><span class="device-row-label">MCU Temp</span><span class="device-row-value">41 °C</span></div>
         <div class="device-row"><span class="device-row-label">Free Heap</span><span class="device-row-value">218 KB</span></div>
+      </div>
+    </div>
+
+    <!-- SERIAL TERMINAL -->
+    <div class="section-label fade-in"><h2>ESP32 Serial Terminal</h2></div>
+    <div class="terminal-card fade-in">
+      <div class="terminal-panel">
+        <div class="terminal-meta">
+          <div class="terminal-meta-row">
+            <span>Port</span>
+            <strong id="serial-port-name">Not selected</strong>
+          </div>
+          <div class="terminal-meta-row">
+            <span>Status</span>
+            <strong><span id="serial-status" class="status-dot status-off"></span><span id="serial-status-text">Disconnected</span></strong>
+          </div>
+        </div>
+        <button id="serial-connect-btn" class="terminal-button">Connect ESP32</button>
+      </div>
+      <div class="terminal-dual">
+        <div class="terminal-window">
+          <div class="terminal-titlebar"><span class="terminal-dot"></span> ESP32 connection</div>
+          <pre class="terminal-body" id="terminal-status" aria-live="polite"></pre>
+        </div>
+        <div class="terminal-window">
+          <div class="terminal-titlebar"><span class="terminal-dot terminal-dot-amber"></span> Serial monitor</div>
+          <pre class="terminal-body terminal-body-scroll" id="terminal-serial" aria-live="polite"></pre>
+        </div>
       </div>
     </div>
 

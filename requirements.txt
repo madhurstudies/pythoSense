@@ -1,0 +1,4 @@
+pyserial>=3.5
+flask>=2.3.0
+flask-cors>=4.0.0
+serial-tools>=0.1.1

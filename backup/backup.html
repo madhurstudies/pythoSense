@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SENTINEL — Autonomous Perimeter Defense</title>
+  <meta name="description" content="SENTINEL Command Center — autonomous perimeter defense system powered by ESP32 with servo radar, ultrasonic, IR, soil tripwires and DHT11." />
+
+  <!-- Fonts -->
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Orbitron:wght@400;700;900&family=Share+Tech+Mono&display=swap" rel="stylesheet" />
+
+  <!-- Chart.js not needed — custom canvas radar -->
+  <link rel="stylesheet" href="backup.css" />
+</head>
+<body>
+
+  <!-- NAV -->
+  <nav>
+    <div class="nav-brand">
+      <div class="nav-logo">🛡️</div>
+      <div>
+        <div class="nav-title">SENTINEL</div>
+        <div class="nav-sub">AUTONOMOUS PERIMETER DEFENSE SYSTEM · ESP32</div>
+      </div>
+    </div>
+    <div class="nav-right">
+      <div class="threat-badge clear" id="threatBadge">● PERIMETER CLEAR</div>
+      <div class="sys-clock" id="clock">--:--:--</div>
+    </div>
+  </nav>
+
+  <!-- MAIN GRID -->
+  <div class="main-grid">
+
+    <!-- ── RADAR PANEL (left, full height) ───────────────────── -->
+    <div class="panel radar-panel">
+      <div class="panel-title">Perimeter Radar · 0° – 180° Sweep</div>
+
+      <canvas id="radarCanvas"></canvas>
+
+      <div class="zone-legend">
+        <div class="zone-chip"><div class="zone-dot z-clear"></div>CLEAR &gt;150 cm</div>
+        <div class="zone-chip"><div class="zone-dot z-alert"></div>ALERT 50–150 cm</div>
+        <div class="zone-chip"><div class="zone-dot z-lock"></div>LOCK &lt;50 cm</div>
+      </div>
+
+      <div class="radar-info">
+        <div class="radar-stat">
+          <div class="radar-stat-val" id="statDist">— cm</div>
+          <div class="radar-stat-lbl">Closest Target</div>
+        </div>
+        <div class="radar-stat">
+          <div class="radar-stat-val" id="statAngle">—°</div>
+          <div class="radar-stat-lbl">Bearing</div>
+        </div>
+        <div class="radar-stat">
+          <div class="radar-stat-val" id="statLevel" style="color:var(--green-glow)">CLEAR</div>
+          <div class="radar-stat-lbl">Threat Level</div>
+        </div>
+        <div class="radar-stat">
+          <div class="radar-stat-val" id="uptime">00:00</div>
+          <div class="radar-stat-lbl">System Uptime</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── RIGHT COLUMN ──────────────────────────────────────── -->
+    <div class="right-col">
+
+      <!-- Sensor Readings -->
+      <div class="panel">
+        <div class="panel-title">Sensor Telemetry</div>
+        <div class="sensor-grid">
+
+          <!-- Distance -->
+          <div class="s-card c-dist">
+            <div class="s-card-lbl">Ultrasonic · HC-SR04</div>
+            <div class="s-card-val"><span id="distVal">---</span><span class="s-card-unit">cm</span></div>
+            <div class="s-card-bar"><div class="s-card-fill" id="distBar" style="width:0%;background:var(--green-glow)"></div></div>
+          </div>
+
+          <!-- Sweep Angle -->
+          <div class="s-card c-angle">
+            <div class="s-card-lbl">Servo Angle</div>
+            <div class="s-card-val"><span id="angleVal">90</span><span class="s-card-unit">°</span></div>
+            <div class="s-card-bar"><div class="s-card-fill" id="angleBar" style="width:50%;background:var(--green-mid)"></div></div>
+          </div>
+
+          <!-- Temperature -->
+          <div class="s-card c-temp">
+            <div class="s-card-lbl">DHT11 · Temperature</div>
+            <div class="s-card-val"><span id="tempVal">--.-</span><span class="s-card-unit">°C</span></div>
+            <div class="s-card-bar"><div class="s-card-fill" id="tempBar" id="tempFill" style="width:48%;background:#fbbf24"></div></div>
+          </div>
+
+          <!-- Humidity -->
+          <div class="s-card c-hum">
+            <div class="s-card-lbl">DHT11 · Humidity</div>
+            <div class="s-card-val"><span id="humVal">--</span><span class="s-card-unit">%</span></div>
+            <div class="s-card-bar"><div class="s-card-fill" id="humBar" style="width:57%;background:#60a5fa"></div></div>
+          </div>
+
+          <!-- Soil 1 -->
+          <div class="s-card c-soil">
+            <div class="s-card-lbl">Tripwire CH34 · Soil A</div>
+            <div class="s-card-val" id="soil1Val" style="font-size:1.05rem;">1200</div>
+          </div>
+
+          <!-- Soil 2 -->
+          <div class="s-card c-soil">
+            <div class="s-card-lbl">Tripwire CH35 · Soil B</div>
+            <div class="s-card-val" id="soil2Val" style="font-size:1.05rem;">1150</div>
+          </div>
+
+          <!-- IR Confirmation -->
+          <div class="s-card c-ir" style="grid-column:1/-1">
+            <div class="s-card-lbl">IR Cross-Check Sensor · CH19</div>
+            <div class="s-card-val" id="irVal">NEGATIVE</div>
+          </div>
+
+        </div>
+      </div>
+
+      <!-- System Status Indicators -->
+      <div class="panel">
+        <div class="panel-title">System Status</div>
+        <div class="status-grid">
+
+          <div class="stat-pill pill-on" id="pillSweep">
+            SERVO SWEEP
+            <span class="stat-pill-val">■ ON</span>
+          </div>
+          <div class="stat-pill pill-off" id="pillLaser">
+            LASER
+            <span class="stat-pill-val">□ OFF</span>
+          </div>
+          <div class="stat-pill pill-off" id="pillIR">
+            IR CONFIRM
+            <span class="stat-pill-val">□ OFF</span>
+          </div>
+          <div class="stat-pill pill-off" id="pillTilt">
+            TILT ALARM
+            <span class="stat-pill-val">□ OFF</span>
+          </div>
+
+        </div>
+
+        <!-- Pinout reference -->
+        <div style="margin-top:10px;font-size:0.60rem;color:var(--text-dim);line-height:1.9;letter-spacing:1px;">
+          <span style="color:var(--green-dim)">TRIG</span>=5 · <span style="color:var(--green-dim)">ECHO</span>=18 · <span style="color:var(--green-dim)">SERVO</span>=13 · <span style="color:var(--green-dim)">IR</span>=19 · <span style="color:var(--green-dim)">SOIL1</span>=34 · <span style="color:var(--green-dim)">SOIL2</span>=35<br>
+          <span style="color:var(--green-dim)">DHT11</span>=4 · <span style="color:var(--green-dim)">TILT</span>=32 · <span style="color:var(--green-dim)">LASER</span>=33 · <span style="color:var(--green-dim)">BUZZ</span>=12 · <span style="color:var(--green-dim)">RGB</span>=25/26/27 · <span style="color:var(--green-dim)">LCD</span>=SDA21/SCL22
+        </div>
+      </div>
+
+      <!-- Event Log -->
+      <div class="panel">
+        <div class="panel-title">Event Log · Live Feed</div>
+        <div class="event-log" id="eventLog"></div>
+      </div>
+
+    </div>
+    <!-- /right-col -->
+
+  </div>
+  <!-- /main-grid -->
+
+  <footer>
+    <p><span>SENTINEL</span> · Autonomous Perimeter Defense · ESP32 + Arduino ·
+    Servo Radar · IR Tripwires · DHT11 · WiFi Dashboard ·
+    Built by <span>Madhur</span></p>
+  </footer>
+
+  <script src="backup.js"></script>
+
+</body>
+</html>

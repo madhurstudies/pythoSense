@@ -34,30 +34,46 @@ void setup() {
   analogSetPinAttenuation(SOIL_PIN, ADC_11db);
   analogSetPinAttenuation(LDR_PIN, ADC_11db);
 
-  Serial.println("\n[SYSTEM] TELEMETRY ACTIVE ON D35 - BAUD 115200");
+  Serial.println("\n[SYSTEM] PYTHOSENSE TELEMETRY ACTIVE - BAUD 115200");
+  Serial.println("[SYSTEM] DHT11 + Soil Moisture + Light Sensors - 100ms Updates");
+  Serial.println("[SYSTEM] Ready for data transmission...");
 }
 
+unsigned long lastTransmission = 0;
+const unsigned long transmissionInterval = 100; // 100ms intervals
+
 void loop() {
-  // 1. Environmental Telemetry
-  float h = dht.readHumidity();
-  float t = dht.readTemperature();
+  unsigned long currentTime = millis();
+  
+  // Transmit data every 100ms precisely
+  if (currentTime - lastTransmission >= transmissionInterval) {
+    lastTransmission = currentTime;
+    
+    // 1. Real Environmental Telemetry from DHT11
+    float h = dht.readHumidity();
+    float t = dht.readTemperature();
+    
+    // Check if DHT readings are valid
+    if (isnan(h) || isnan(t)) {
+      Serial.println("[ERROR] Failed to read from DHT sensor!");
+      return; // Skip this transmission but continue timing
+    }
 
-  // 2. Analog Data Acquisition
-  int sRaw = readADC_Smooth(SOIL_PIN);
-  int lRaw = readADC_Smooth(LDR_PIN);
+    // 2. Analog Data Acquisition (Real sensors)
+    int sRaw = readADC_Smooth(SOIL_PIN);
+    int lRaw = readADC_Smooth(LDR_PIN);
 
-  // 3. Signal Mapping & Constraints
-  int sPct = constrain(map(sRaw, soilDryRaw, soilWetRaw, 0, 100), 0, 100);
-  int lPct = constrain(map(lRaw, ldrDarkRaw, ldrBrightRaw, 0, 100), 0, 100);
+    // 3. Signal Mapping & Constraints
+    int sPct = constrain(map(sRaw, soilDryRaw, soilWetRaw, 0, 100), 0, 100);
+    int lPct = constrain(map(lRaw, ldrDarkRaw, ldrBrightRaw, 0, 100), 0, 100);
 
-  // 4. Data Packet Transmission (Strict Format for Python Parser)
-  // T:[Temp],H:[Hum],SR:[SoilRaw],SP:[SoilPct],LR:[LdrRaw],LP:[LdrPct]
-  Serial.print("T:"); Serial.print(t, 1);
-  Serial.print(",H:"); Serial.print(h, 1);
-  Serial.print(",SR:"); Serial.print(sRaw);
-  Serial.print(",SP:"); Serial.print(sPct);
-  Serial.print(",LR:"); Serial.print(lRaw);
-  Serial.print(",LP:"); Serial.println(lPct);
-
-  delay(2000); // Maintain 2s interval for DHT11 stability
+    // 4. Data Packet Transmission (Strict Format for Python Parser)
+    // T:[Temp],H:[Hum],SR:[SoilRaw],SP:[SoilPct],LR:[LdrRaw],LP:[LdrPct]
+    Serial.print("T:"); Serial.print(t, 1);
+    Serial.print(",H:"); Serial.print(h, 1);
+    Serial.print(",SR:"); Serial.print(sRaw);
+    Serial.print(",SP:"); Serial.print(sPct);
+    Serial.print(",LR:"); Serial.print(lRaw);
+    Serial.print(",LP:"); Serial.println(lPct);
+  }
 }

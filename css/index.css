@@ -154,21 +154,45 @@
       display: flex;
       align-items: center;
       gap: 7px;
-      background: rgba(34,197,94,0.12);
-      border: 1px solid rgba(34,197,94,0.25);
+      background: rgba(34,197,94,0.08);
+      border: 1px solid rgba(255,255,255,0.06);
       border-radius: 20px;
       padding: 6px 14px;
       font-size: 0.78rem;
       font-weight: 600;
       color: var(--green-400);
+      transition: border-color 0.4s ease, background 0.4s ease;
+    }
+    .reconnect-btn {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.15), rgba(59, 130, 246, 0.10));
+      border: 1px solid rgba(96, 165, 250, 0.30);
+      color: #60a5fa;
+      font-size: 0.78rem;
+      font-weight: 600;
+      padding: 6px 14px;
+      border-radius: 20px;
+      cursor: pointer;
+      transition: all 0.22s;
+      margin-left: 8px;
+    }
+    .reconnect-btn:hover {
+      background: linear-gradient(135deg, rgba(96, 165, 250, 0.25), rgba(59, 130, 246, 0.18));
+      border-color: rgba(96, 165, 250, 0.50);
+      color: #3b82f6;
+      transform: translateY(-1px);
+      box-shadow: 0 4px 16px rgba(96, 165, 250, 0.15);
+    }
+    .reconnect-btn:active {
+      transform: translateY(0);
     }
     .pulse-dot {
       width: 7px;
       height: 7px;
       border-radius: 50%;
-      background: var(--green-400);
+      background: rgba(255,255,255,0.2);
       box-shadow: 0 0 0 0 rgba(74,222,128,0.6);
       animation: pulse 2s infinite;
+      transition: background 0.4s ease;
     }
     @keyframes pulse {
       0%, 100% { box-shadow: 0 0 0 0 rgba(74,222,128,0.6); }
@@ -847,3 +871,170 @@
       transition: opacity 0.55s ease, transform 0.55s ease;
     }
     .fade-in.visible { opacity: 1; transform: translateY(0); }
+
+    /* ─── Serial Terminal Card ───────────────────────────────── */
+    .terminal-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-xl);
+      padding: 24px;
+      backdrop-filter: blur(16px);
+      box-shadow: var(--shadow-card);
+      display: grid;
+      gap: 18px;
+      margin-bottom: 40px;
+    }
+    .terminal-panel {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 20px;
+      flex-wrap: wrap;
+    }
+    .terminal-meta {
+      display: grid;
+      gap: 10px;
+      min-width: 220px;
+    }
+    .terminal-meta-row {
+      display: flex;
+      justify-content: space-between;
+      gap: 14px;
+      color: var(--text-muted);
+      font-size: 0.82rem;
+    }
+    .terminal-meta-row strong {
+      color: var(--text-primary);
+      font-family: var(--font-mono);
+      font-weight: 700;
+    }
+    .terminal-button {
+      background: linear-gradient(135deg, rgba(74,222,128,0.16), rgba(45,212,191,0.12));
+      border: 1px solid rgba(74,222,128,0.25);
+      color: var(--green-400);
+      font-weight: 700;
+      padding: 12px 20px;
+      border-radius: 14px;
+      cursor: pointer;
+      transition: transform 0.22s ease, background 0.22s ease;
+    }
+    .terminal-button:hover {
+      transform: translateY(-1px);
+      background: linear-gradient(135deg, rgba(74,222,128,0.22), rgba(45,212,191,0.18));
+    }
+    .terminal-shell {
+      display: grid;
+      gap: 18px;
+    }
+    .terminal-dual {
+      display: grid;
+      grid-template-columns: 1fr 1.2fr;
+      gap: 16px;
+      align-items: stretch;
+    }
+    .terminal-window {
+      background: rgba(8, 15, 11, 0.88);
+      border: 1px solid rgba(74, 222, 128, 0.16);
+      border-radius: 16px;
+      overflow: hidden;
+      min-height: 200px;
+      display: flex;
+      flex-direction: column;
+    }
+    .terminal-titlebar {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 14px;
+      font-family: var(--font-mono);
+      font-size: 0.72rem;
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      text-transform: uppercase;
+      color: var(--text-muted);
+      background: rgba(0, 0, 0, 0.35);
+      border-bottom: 1px solid rgba(255, 255, 255, 0.06);
+    }
+    .terminal-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4ade80;
+      box-shadow: 0 0 10px rgba(74, 222, 128, 0.45);
+    }
+    .terminal-dot-amber {
+      background: #fbbf24;
+      box-shadow: 0 0 10px rgba(251, 191, 36, 0.35);
+    }
+    .terminal-body {
+      margin: 0;
+      padding: 14px 16px 16px;
+      font-family: var(--font-mono);
+      font-size: 0.74rem;
+      line-height: 1.55;
+      color: #c7e8d0;
+      white-space: pre-wrap;
+      word-break: break-all;
+      flex: 1;
+      min-height: 160px;
+    }
+    .terminal-body-scroll {
+      overflow-y: auto;
+      max-height: 280px;
+    }
+    @media (max-width: 900px) {
+      .terminal-dual { grid-template-columns: 1fr; }
+    }
+    .terminal-canvas-wrap {
+      background: rgba(0,0,0,0.18);
+      border: 1px solid rgba(255,255,255,0.08);
+      border-radius: 18px;
+      overflow: hidden;
+    }
+    .terminal-canvas-wrap canvas {
+      display: block;
+      width: 100%;
+      height: auto;
+    }
+    .terminal-log-wrap {
+      background: rgba(8,15,11,0.82);
+      border: 1px solid rgba(74,222,128,0.14);
+      border-radius: 18px;
+      padding: 16px;
+      min-height: 170px;
+      max-height: 220px;
+      overflow-y: auto;
+    }
+    .terminal-log {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+      font-family: var(--font-mono);
+      font-size: 0.75rem;
+      color: var(--text-primary);
+      line-height: 1.4;
+    }
+    .terminal-log-line {
+      opacity: 0.9;
+    }
+    .terminal-log-info { color: #c7d9c7; }
+    .terminal-log-debug { color: #9ee7ff; }
+    .terminal-log-warn { color: #fbbf24; }
+    .status-dot {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      margin-right: 8px;
+      vertical-align: middle;
+      box-shadow: 0 0 0 4px rgba(255,255,255,0.03);
+    }
+    .status-ok { background: #4ade80; }
+    .status-off { background: #f97316; }
+    @media (max-width: 840px) {
+      .terminal-card { padding: 20px; }
+      .terminal-panel { gap: 12px; }
+    }
+    @media (max-width: 720px) {
+      .terminal-shell { gap: 14px; }
+    }
